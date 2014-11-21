@@ -13,7 +13,7 @@ def test_emits_number():
 
 def test_emits_dictionary():
     assert lua.emit.to_lua({'some_key': 'some-value', 'other-key': 42})\
-           == '{"some_key"="some-value","other-key"=42}'
+           == '{some_key="some-value",other-key=42}'
 
 
 def test_emits_variable_assignment():
