@@ -21,9 +21,7 @@ class RESTResponse(QObject):
         self.progress.emit(recv, total)
 
     def _onFinished(self):
-        print "On Finished"
         resData = str(self.reply.readAll())
-        print resData
         if self.reply.error():
             if len(resData) == 0:
                 self.error.emit({'statusMessage': self.reply.errorString()})
