@@ -37,7 +37,7 @@ class RESTResponse(QObject):
             self.done.emit(resp)
 
 
-class IRESTService:
+class IRESTService(object):
     def __init__(self, network_manager):
         self.network_manager = network_manager
         self.requests = []
