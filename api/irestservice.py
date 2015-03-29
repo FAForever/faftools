@@ -3,15 +3,18 @@ import json
 from PyQt4.QtCore import *
 from PyQt4.QtNetwork import *
 
+from faftools.api import _get_NAM
 
-class RESTResponse(QObject):
+class RestResponse(QObject):
 
-    error = pyqtSignal(object)
+    error = pyqtSignal(int, object)
     done = pyqtSignal(object)
     progress = pyqtSignal(int, int)
 
+    _finalize = pyqtSignal(object)
+
     def __init__(self, reply):
-        super(RESTResponse, self).__init__()
+        super(RestResponse, self).__init__()
 
         self.reply = reply
         reply.finished.connect(self._onFinished)
@@ -23,41 +26,52 @@ class RESTResponse(QObject):
     def _onFinished(self):
         resData = str(self.reply.readAll())
         if self.reply.error():
+            http_code = self.reply.attribute(QNetworkRequest.HttpStatusCodeAttribute)
             if len(resData) == 0:
-                self.error.emit({'statusMessage': self.reply.errorString()})
+                self.error.emit(http_code, self.reply.errorString())
             else:
                 try:
-                    self.error.emit(json.loads(resData))
-                except ValueError: # Non-json response -> Server error
-                    self.error.emit({'statusMessage': resData})
+                    self.error.emit(http_code, json.loads(resData)['message'])
+                except (ValueError, KeyError): # Non-json response -> Server error
+                    self.error.emit(http_code, resData)
 
         else:
             resp = json.loads(resData)
 
             self.done.emit(resp)
 
+        self._finalize.emit(self)
 
-class IRESTService(object):
-    def __init__(self, network_manager):
-        self.network_manager = network_manager
-        self.requests = []
+class RestService:
 
-    def _get(self, url):
+    'Global set of all live RestResponse objects'
+    responses = set()
+
+    @staticmethod
+    def _get(url):
         req = QNetworkRequest(QUrl(url))
-        return self._respond(self.network_manager.get(req))
 
-    def _post(self, url, post_data):
+        return RestService._build_response(_get_NAM().get(req))
+
+    @staticmethod
+    def _post(url, post_data):
         req = QNetworkRequest(QUrl(url))
         req.setHeader(QNetworkRequest.ContentTypeHeader, "application/json")
-        return self._respond(self.network_manager.post(req, json.dumps(post_data).encode()))
 
-    def _respond(self, req):
-        res = RESTResponse(req)
-        self.requests.append(res)
-        res.done.connect(self._cleanup)
-        res.error.connect(self._cleanup)
-        return res
+        return RestService._build_response(
+            _get_NAM().post(req, json.dumps(post_data).encode()))
 
-    def _cleanup(self, res):
-        if res in self.requests:
-            self.requests.remove(res)
+    @staticmethod
+    def _build_response(request):
+        response = RestResponse(request)
+
+        RestService.responses.add(response)
+
+        response._finalize.connect(RestService._cleanup_response)
+
+        return response
+
+
+    @staticmethod
+    def _cleanup_response(response):
+        RestService.responses.remove(response)
