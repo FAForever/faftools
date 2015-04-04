@@ -46,7 +46,7 @@ class FAPacket:
         self.type = ord(data[0])
         self.len  = ord(data[1]) | ord(data[2]) << 8;
         self.data = data[3:]
-        d = { }
+        d = {}
         d[0] = 1
         d[0x32] = 1
         d[0x33] = 1
@@ -147,7 +147,7 @@ class FAEncap(object):
         self.offset += len_
         if offset == self.offset:
             sys.stdout.write("waarg {0} {1} {2}".format(offset, self.offset, binascii.hexlify(self.data)))
-        return FAPacket(self.data[offset : self.offset])
+        return FAPacket(self.data[offset: self.offset])
     def prepend_remaining(self, r):
         self.data = str(r) + str(self.data)
     def remaining(self):
@@ -157,15 +157,15 @@ class FAEncap(object):
 
 class FAPeerState(object):
     def __init__(self):
-        self.addr_to_cmdsrc = { }
-        self.cmdsrc_to_addr = [ ]
-        self.simtick = [ ]
-        self.ack_simtick = [ ]
+        self.addr_to_cmdsrc = {}
+        self.cmdsrc_to_addr = []
+        self.simtick = []
+        self.ack_simtick = []
     def process_egress(self, addr, packet):
         if packet.is_set_cmdsrc():
             self.cmdsource = packet.cmdsrc()
         if packet.is_advance():
-            self.simtick[self.addr_to_cmdsrc[addr] ] += packet.simtick()
+            self.simtick[self.addr_to_cmdsrc[addr]] += packet.simtick()
         elif packet.is_ack():
             s1 = self.addr_to_cmdsrc[addr]
             s2 = packet.ack_cmdsource()
@@ -189,20 +189,20 @@ argp.add_argument("-p", action="store_true")
 
 args = argp.parse_args()
 
-remain = { }
-inflate = { }
-inflate_remain = { }
+remain = {}
+inflate = {}
+inflate_remain = {}
 
-cmdpackets_seen = { }
+cmdpackets_seen = {}
 
-future = { }
+future = {}
 
-c32 = [ 0, 0, 0 ]
+c32 = [0, 0, 0]
 c33 = 0
 c34 = 0
 tick = 0
 
-seq_seen = { }
+seq_seen = {}
 
 for line in sys.stdin:
     (src, srcport, dst, dstport, time, data) = line.split();
@@ -214,7 +214,7 @@ for line in sys.stdin:
     if not e.connection() in remain:
         remain[e.connection()] = ''
     if not e.connection() in future:
-        future[e.connection()] = { }
+        future[e.connection()] = {}
 
     s = '{0} {1} type={2} len={3: 4d}'.format(e.time, e.connection(), e.type, e.len)
     if e.type != 4:
@@ -292,6 +292,6 @@ for line in sys.stdin:
                 else:
                     foo += ' '
                 if args.t:
-                    print "TICK", ''.join([ str(c32[i]) + ' ' for i in range(0, len(c32)) ]), c33, c34, tick, foo
+                    print "TICK", ''.join([str(c32[i]) + ' ' for i in range(0, len(c32))]), c33, c34, tick, foo
 
                 remain[e.connection()] = e.remaining()
