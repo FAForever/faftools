@@ -28,7 +28,7 @@ class RESTResponse(QObject):
             else:
                 try:
                     self.error.emit(json.loads(resData))
-                except ValueError: # Non-json response -> Server error
+                except ValueError:  # Non-json response -> Server error
                     self.error.emit({'statusMessage': resData})
 
         else:

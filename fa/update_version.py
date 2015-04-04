@@ -14,10 +14,10 @@ addr = [0xd3d3f, 0x47612c, 0x476665]
 f = open("ForgedAlliance.%s.exe" % version, 'rb+')
 
 for a in addr:
-    print hexlify(exe[a+1:a+5])
+    print hexlify(exe[a + 1:a + 5])
     v = struct.pack("<L", version)
     print hexlify(v)
-    f.seek(a+1, 0)
+    f.seek(a + 1, 0)
     f.write(v)
 
 f.close()

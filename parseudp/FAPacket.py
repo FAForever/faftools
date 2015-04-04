@@ -44,7 +44,7 @@ def hexdump(data, indent):
 class FAPacket:
     def __init__(self, data):
         self.type = ord(data[0])
-        self.len  = ord(data[1]) | ord(data[2]) << 8;
+        self.len = ord(data[1]) | ord(data[2]) << 8;
         self.data = data[3:]
         d = {}
         d[0] = 1
@@ -110,8 +110,8 @@ class FAEncap(object):
             self.data = packet[1:]
             self.len = len(packet) - 1
         elif ord(packet[0]) == 255:
-            self.type=255
-            self.data=''
+            self.type = 255
+            self.data = ''
             self.len = len(packet) - 1
         else:
             (self.type, self.mask, self.seq, self.ack, self.seq2, self.ack2, self.len) = struct.unpack("<bLHHHHH", packet[0:15])
@@ -182,7 +182,7 @@ class FAPeerState(object):
 
             
 
-argp = argparse.ArgumentParser(prog = "PROG")
+argp = argparse.ArgumentParser(prog="PROG")
 argp.add_argument("-e", action="store_true")
 argp.add_argument("-t", action="store_true")
 argp.add_argument("-p", action="store_true")
@@ -206,7 +206,7 @@ seq_seen = {}
 
 for line in sys.stdin:
     (src, srcport, dst, dstport, time, data) = line.split();
-    #print "*{0}*{1}*{2}*{3}*{4}*{5}".format(src, srcport, dst, dstport, time, data);
+    # print "*{0}*{1}*{2}*{3}*{4}*{5}".format(src, srcport, dst, dstport, time, data);
     e = FAEncap(src, srcport, dst, dstport, time, binascii.unhexlify(data.translate(None, ':')))
 
     if not e.connection() in seq_seen:
@@ -267,7 +267,7 @@ for line in sys.stdin:
                     inflate_remain[e.connection()] = inflate[e.connection()].unconsumed_tail
 
                 e.prepend_remaining(remain[e.connection()])
-                #print e.pp_data(16);
+                # print e.pp_data(16);
                 for p in e.packets():
                     if p.type == 0x32:
                         c32[p.ack_cmdsource()] = p.simtick()
@@ -281,7 +281,7 @@ for line in sys.stdin:
                     if p.can_decode():
                         print '       ', p.decode()
                     else:
-                        s='        {0:02x} {1: 4d}    '.format(p.type, p.len - 3)
+                        s = '        {0:02x} {1: 4d}    '.format(p.type, p.len - 3)
                         print s, p.pp_data(len(s) + 1)
                 foo = ""
                 foo = ''
