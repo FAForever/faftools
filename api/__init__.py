@@ -17,4 +17,4 @@ def _get_NAM():
 VERSION_SERVICE_URL = "http://api.dev.faforever.com/version"
 PATCH_SERVICE_URL = "http://api.dev.faforever.com/patch"
 
-from .irestservice import RestService
+from .restservice import RestService
