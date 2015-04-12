@@ -1,7 +1,7 @@
 import json
 
-from PyQt4.QtCore import *
-from PyQt4.QtNetwork import *
+from PyQt5.QtCore import *
+from PyQt5.QtNetwork import *
 
 from faftools.api import _get_NAM
 
