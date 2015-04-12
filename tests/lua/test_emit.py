@@ -2,7 +2,6 @@ __author__ = 'Sheeo'
 
 from faftools import lua
 
-
 def test_emits_string():
     assert lua.emit.to_lua('python string') == '"python string"'
 
@@ -12,8 +11,11 @@ def test_emits_number():
 
 
 def test_emits_dictionary():
-    assert lua.emit.to_lua({'some_key': 'some-value', 'other-key': 42})\
-           == '{some_key="some-value",other-key=42}'
+    out = lua.emit.to_lua({'some_key': 'some-value', 'other-key': 42})
+
+    # Shut up.
+    assert out == '{some_key="some-value",other-key=42,}' \
+        or out == '{other-key=42,some_key="some-value",}'
 
 
 def test_emits_variable_assignment():

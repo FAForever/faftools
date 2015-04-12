@@ -7,24 +7,22 @@ def to_lua(value):
         if value == {}:
             return "{}"
         lua.append('{')
-        items = value.items()
-        for k, v in items[:len(items)-1]:
-            lua.append(''.join([k, '=', to_lua(v), ',']))
-        k, v = items[len(items)-1]
-        lua.append(''.join([k, '=', to_lua(v)]))
+
+        for key,v in value.items():
+            lua.append(key + '=' + to_lua(v) + ',')
+
         lua.append('}')
     elif isinstance(value, list):
         if not value:
             return "{}"
         lua.append('{')
-        for k in value[:len(value)-1]:
-            lua.append(''.join([to_lua(k), ',']))
-        k = value[len(value)-1]
-        lua.append(''.join([to_lua(k)]))
+
+        for v in value:
+            lua.append(to_lua(v) + ',')
         lua.append('}')
     elif isinstance(value, tuple):
-        k, v = value
-        return "".join([k, '=', to_lua(v)])
+        key, v = value
+        return "".join([key, '=', to_lua(v)])
     elif isinstance(value, str):
         lua.append(''.join(['"', value, '"']))
     else:

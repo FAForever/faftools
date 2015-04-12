@@ -1,3 +1,3 @@
 __author__ = 'Sheeo'
 
-__all__ = ['emit']
+from . import emit
