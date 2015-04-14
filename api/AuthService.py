@@ -9,11 +9,13 @@ class AuthService(RestService):
                     'username': username,
                     'password': password}
 
-        return RestService._post(SERVICE_URL.AUTH + "/register", postData)
+        return RestService._post(SERVICE_URL.AUTH + "auth/register", postData)
 
     @staticmethod
-    def Login(username, password):
-        postData = {'username': username,
-                    'password': password}
+    def Login(client_id, username, password):
+        postData = dict(grant_type='password',
+                        username = username,
+                        password = password,
+                        client_id=client_id)
 
-        return RestService._post(SERVICE_URL.AUTH + "/login", postData)
+        return RestService._get(SERVICE_URL.AUTH + "oauth/token", **postData)

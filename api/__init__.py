@@ -7,7 +7,7 @@ class __SERVICE_URL:
         "Add service url bases in this function definition."
 
         url_bases = dict(
-            AUTH='https://{domain}/auth',
+            AUTH='https://{domain}/',
             VERSION='http://{domain}/version',
             PATCH='http://{domain}/patch',
             GAMES='http://{domain}/games',
@@ -36,3 +36,25 @@ def _get_NAM():
     before <i>initialize_faftools_api</i> is called.
     """
     return _networkAccessManager
+
+from .AuthService import AuthService
+__all__ = ['AuthService','GamesService','UserService','VersionService']
+
+class FAF_API:
+    """
+    Should probably be used for all services.
+
+    I am going to use it to implement oauth-ed services.
+    """
+    def __init__(self, client_id, client_secret):
+        self.client_id = client_id
+        self.client_secret = client_secret
+
+        self.oauth_token = None
+
+    def Login(self, username, password):
+        self.oauth_token = AuthService.Login(self.client_id, username, password)
+
+        return self.oauth_token
+
+__all__ += ['FAF_API']

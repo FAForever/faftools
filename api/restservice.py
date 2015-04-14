@@ -24,7 +24,7 @@ class RestResponse(QObject):
         self.progress.emit(recv, total)
 
     def _onFinished(self):
-        resData = str(self.reply.readAll())
+        resData = bytes(self.reply.readAll()).decode()
         if self.reply.error():
             http_code = self.reply.attribute(QNetworkRequest.HttpStatusCodeAttribute)
             if len(resData) == 0:
@@ -36,11 +36,19 @@ class RestResponse(QObject):
                     self.error.emit(http_code, resData)
 
         else:
-            resp = json.loads(resData)
+            resp = json.loads(str(resData))
 
             self.done.emit(resp)
 
         self._finalize.emit(self)
+
+def make_urlquery(**url_kwargs):
+    query = QUrlQuery()
+
+    if len(url_kwargs) > 0:
+        query.setQueryItems(url_kwargs.items())
+
+    return query
 
 class RestService:
 
@@ -48,8 +56,11 @@ class RestService:
     responses = set()
 
     @staticmethod
-    def _get(url):
-        req = QNetworkRequest(QUrl(url))
+    def _get(url, **url_kwargs):
+        url = QUrl(url)
+        url.setQuery(make_urlquery(**url_kwargs))
+
+        req = QNetworkRequest(url)
 
         return RestService._build_response(_get_NAM().get(req))
 

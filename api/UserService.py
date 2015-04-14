@@ -9,7 +9,7 @@ class UserService(RestService):
             return RestService._get(SERVICE_URL.USER + "/%d/info" % id_or_name)
         else:
             assert isinstance(id_or_name, str)
-            return RestService._get(SERVICE_URL.USER + "/infobyname/%s" % id_or_name)
+            return RestService._get(SERVICE_URL.USER + "/byname/%s" % id_or_name)
 
 import logging
 logger = logging.getLogger(__name__)
@@ -62,8 +62,8 @@ class UserInfo(QObject):
     def update(self):
         id_or_name = self.id if self.id else self.username
 
-        def _onError(resp):
-            logger.warning('Failed to get info for user "%s": %s', id_or_name, resp["statusMessage"])
+        def _onError(err_code, resp):
+            logger.warning('Failed to get info for user "%s": %s', id_or_name, resp)
 
             del self._reply
 
@@ -74,9 +74,9 @@ class UserInfo(QObject):
 
             if not self.username:
                 self.username = resp['username']
-            elif resp['username'] != self.username:
+            elif resp['name'] != self.username:
                 # Username changed.
-                self.username = resp['username']
+                self.username = resp['name']
 
             for attr in ['clan', 'country']:
                 self.__dict__[attr] = resp[attr]
