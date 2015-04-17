@@ -7,6 +7,13 @@ from faftools.api import _get_NAM
 
 class RestResponse(QObject):
 
+    class RestError(Exception):
+        def __init__(self, http_code, response):
+            super(RestResponse.RestError, self).__init__(http_code, response)
+
+            self.http_code = http_code
+            self.response = response
+
     error = pyqtSignal(int, object)
     done = pyqtSignal(object)
     progress = pyqtSignal(int, int)
@@ -41,6 +48,37 @@ class RestResponse(QObject):
             self.done.emit(resp)
 
         self._finalize.emit(self)
+
+    def wait(self, progress_cb=None):
+        """
+        Waits (doesn't block events) and returns response as deserialized json.
+
+        Errors get raised.
+        """
+
+        if progress_cb:
+            self.progress.connect(progress_cb)
+
+        result = None
+
+        loop = QEventLoop()
+
+        def hack_callback(*args):
+            nonlocal result
+
+            result = args
+
+            loop.exit(0)
+
+        self.done.connect(hack_callback)
+        self.error.connect(hack_callback)
+
+        loop.exec()
+
+        if len(result) == 1:
+            return result
+        else:
+            raise self.RestError(*result)
 
 def make_urlquery(**url_kwargs):
     query = QUrlQuery()

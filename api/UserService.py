@@ -65,8 +65,6 @@ class UserInfo(QObject):
         def _onError(err_code, resp):
             logger.warning('Failed to get info for user "%s": %s', id_or_name, resp)
 
-            del self._reply
-
         def _onSuccess(resp):
 
             if not self.id:
@@ -87,9 +85,8 @@ class UserInfo(QObject):
             self.rating = Rating(resp['rating']['mean'], resp['rating']['deviation'])
 
             self.updated.emit(self)
-            del self._reply
 
-        self._reply = UserService.Info(id_or_name)
+        reply = UserService.Info(id_or_name)
 
-        self._reply.error.connect(_onError)
-        self._reply.done.connect(_onSuccess)
+        reply.error.connect(_onError)
+        reply.done.connect(_onSuccess)
