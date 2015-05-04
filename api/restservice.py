@@ -27,25 +27,25 @@ class RestResponse(QObject):
         reply.finished.connect(self._onFinished)
         reply.downloadProgress.connect(self._onProgress)
 
+    def _content_type(self):
+        return self.reply.header(QNetworkRequest.ContentTypeHeader)
+
     def _onProgress(self, recv, total):
         self.progress.emit(recv, total)
 
     def _onFinished(self):
-        resData = bytes(self.reply.readAll()).decode()
-        if self.reply.error():
-            http_code = self.reply.attribute(QNetworkRequest.HttpStatusCodeAttribute)
-            if len(resData) == 0:
-                self.error.emit(http_code, self.reply.errorString())
-            else:
-                try:
-                    self.error.emit(http_code, json.loads(resData)['message'])
-                except (ValueError, KeyError): # Non-json response -> Server error
-                    self.error.emit(http_code, resData)
-
-        else:
-            resp = json.loads(str(resData))
-
+        http_code = self.reply.attribute(QNetworkRequest.HttpStatusCodeAttribute)
+        data = self.reply.readAll()
+        if http_code == 200:
+            if self._content_type() == 'application/json':
+                resp = json.loads(bytes(data).decode())
+            elif self._content_type().startswith('text/'):
+                resp = bytes(data).decode()
+            else: # assume binary
+                resp = bytes(data)
             self.done.emit(resp)
+        else: # assume error / unhandled stuff
+            self.error.emit(http_code, bytes(data).decode())
 
         self._finalize.emit(self)
 
@@ -84,7 +84,7 @@ def make_urlquery(**url_kwargs):
     query = QUrlQuery()
 
     if len(url_kwargs) > 0:
-        query.setQueryItems(url_kwargs.items())
+        query.setQueryItems((k,str(v)) for k,v in url_kwargs.items())
 
     return query
 
@@ -101,6 +101,25 @@ class RestService:
         req = QNetworkRequest(url)
 
         return RestService._build_response(_get_NAM().get(req))
+
+    @staticmethod
+    def _post_file(url, dev:QIODevice):
+        req = QNetworkRequest(QUrl(url))
+
+        body = QHttpMultiPart(QHttpMultiPart.FormDataType)
+
+        dev_part = QHttpPart()
+        dev_part.setHeader(QNetworkRequest.ContentTypeHeader, 'application/x.fafreplay')
+        dev_part.setHeader(QNetworkRequest.ContentDispositionHeader, 'form-data; name="replay"')
+        dev_part.setBodyDevice(dev)
+
+        body.append(dev_part)
+
+        rep = RestService._build_response(_get_NAM().post(req, body))
+
+        body.setParent(rep)
+
+        return rep
 
     @staticmethod
     def _post(url, post_data):
