@@ -11,7 +11,8 @@ class __SERVICE_URL:
             VERSION='http://{domain}/version',
             PATCH='http://{domain}/patch',
             GAMES='http://{domain}/games',
-            USER='http://{domain}/user'
+            USER='http://{domain}/user',
+            MOD='http://{domain}/mod'
         )
 
         for name, furl in url_bases.items():
