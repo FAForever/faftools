@@ -5,6 +5,9 @@ from PyQt5.QtNetwork import *
 
 from faftools.api import _get_NAM
 
+import logging
+log = logging.getLogger(__name__)
+
 class RestResponse(QObject):
 
     class RestError(Exception):
@@ -20,7 +23,7 @@ class RestResponse(QObject):
 
     _finalize = pyqtSignal(object)
 
-    def __init__(self, reply):
+    def __init__(self, reply: QNetworkReply):
         super(RestResponse, self).__init__()
 
         self.reply = reply
@@ -46,6 +49,11 @@ class RestResponse(QObject):
             self.done.emit(resp)
         else: # assume error / unhandled stuff
             self.error.emit(http_code, bytes(data).decode())
+
+            if log.level <= logging.DEBUG:
+                operation = ['HEAD', 'GET', 'PUT', 'POST', 'DELETE', 'CUSTOM'][self.reply.operation()-1]
+                log.debug('%s %s: FAILED - %s',
+                          operation, self.reply.url().toString(), http_code)
 
         self._finalize.emit(self)
 

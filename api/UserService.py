@@ -63,7 +63,7 @@ class UserInfo(QObject):
         id_or_name = self.id if self.id else self.username
 
         def _onError(err_code, resp):
-            logger.warning('Failed to get info for user "%s": %s', id_or_name, resp)
+            logger.warning('Failed to get info for user "%s": %s', id_or_name, err_code)
 
         def _onSuccess(resp):
 
