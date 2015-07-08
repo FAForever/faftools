@@ -1,7 +1,11 @@
 import json
 
-from PyQt4.QtCore import *
-from PyQt4.QtNetwork import *
+try:
+    from PyQt4.QtCore import *
+    from PyQt4.QtNetwork import *
+except ImportError:
+    # TODO: Add fallback
+    pass
 
 
 class RESTResponse(QObject):
