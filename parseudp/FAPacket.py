@@ -218,15 +218,15 @@ for line in sys.stdin:
 
     s = '{0} {1} type={2} len={3: 4d}'.format(e.time, e.connection(), e.type, e.len)
     if e.type != 4:
-        print s
+        print(s)
         if e.len:
-            print ' ' * 7, hexdump(e.data, 8)
+            print(' ' * 7, hexdump(e.data, 8))
     elif e.type == 4:
         if e.seq2 in seq_seen[e.connection()]:
             continue
 
         if len(seq_seen[e.connection()]) and not e.seq2 - 1 in seq_seen[e.connection()]:
-            print "!! packet received out of sequence !! {0} cseq={1}".format(e.connection(), e.seq2)
+            print("!! packet received out of sequence !! {0} cseq={1}".format(e.connection(), e.seq2))
             future[e.connection()][e.seq2] = e
             continue
 
@@ -243,13 +243,13 @@ for line in sys.stdin:
             s += ' cseq={0} cack={1} mask={2} eseq={3} eack={4}'.format(e.seq2, e.ack2, e.mask, e.seq, e.ack)
 
             if args.e:
-                print s
+                print(s)
                 if not e.connection() in inflate:
-                    print ' ' * 7, e.pp_data(8)
+                    print(' ' * 7, e.pp_data(8))
             if args.p:
                 if not e.connection() in cmdpackets_seen:
                     if e.data == "\x02\x00\x00\x00\xff\xff":
-                        print "        !!deflate detected!! on " + e.connection()
+                        print("        !!deflate detected!! on " + e.connection())
                         inflate[e.connection()] = zlib.decompressobj()
 
                 if e.connection() in inflate:
@@ -262,7 +262,7 @@ for line in sys.stdin:
                         data = inflate_remain[e.connection()] + e.data
 
                     inflated = inflate[e.connection()].decompress(data)
-                    print ' ' * 7, hexdump(inflated, 8)
+                    print(' ' * 7, hexdump(inflated, 8))
                     e.data = inflated
                     inflate_remain[e.connection()] = inflate[e.connection()].unconsumed_tail
 
@@ -279,10 +279,10 @@ for line in sys.stdin:
                         tick += p.simtick()
 
                     if p.can_decode():
-                        print '       ', p.decode()
+                        print('       ', p.decode())
                     else:
                         s='        {0:02x} {1: 4d}    '.format(p.type, p.len - 3)
-                        print s, p.pp_data(len(s) + 1)
+                        print(s, p.pp_data(len(s) + 1))
                 foo = ""
                 foo = ''
                 if c33 < c34:
@@ -292,6 +292,6 @@ for line in sys.stdin:
                 else:
                     foo += ' '
                 if args.t:
-                    print "TICK", ''.join([ str(c32[i]) + ' ' for i in range(0, len(c32)) ]), c33, c34, tick, foo
+                    print("TICK", ''.join([ str(c32[i]) + ' ' for i in range(0, len(c32)) ]), c33, c34, tick, foo)
 
                 remain[e.connection()] = e.remaining()
