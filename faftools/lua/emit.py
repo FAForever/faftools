@@ -10,10 +10,8 @@ def to_lua(value):
             return "{}"
         lua.append('{')
         items = value.items()
-        for k, v in items[:len(items)-1]:
+        for k, v in items:
             lua.append(''.join([k, '=', to_lua(v), ',']))
-        k, v = items[len(items)-1]
-        lua.append(''.join([k, '=', to_lua(v)]))
         lua.append('}')
     elif isinstance(value, list):
         if not value:
