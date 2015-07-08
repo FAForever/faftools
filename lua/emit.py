@@ -1,7 +1,9 @@
-__author__ = 'Sheeo'
-
-
 def to_lua(value):
+    """
+    Convert arbitrary python types to a serialized lua string
+    :param value:
+    :return:
+    """
     lua = []
     if isinstance(value, dict):
         if value == {}:
