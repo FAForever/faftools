@@ -1,0 +1,4 @@
+-f https://content.faforever.com/wheel/
+lupa
+marshmallow
+-e .

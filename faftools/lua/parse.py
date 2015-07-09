@@ -10,6 +10,5 @@ try:
         lua = lupa.LuaRuntime()
         lua.execute(input)
         return lua.globals()
-except ImportError:
-    # TODO: Have a fallback parser
-    pass
+except ImportError as e:
+    print("Ignoring lupa import error: %s" % e)

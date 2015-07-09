@@ -18,3 +18,5 @@ Thumbs.db
 .DS_Store
 *.orig
 RELEASE-VERSION
+.coverage
+faftools.egg-info/

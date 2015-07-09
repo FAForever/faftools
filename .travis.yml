@@ -1,0 +1,19 @@
+language: python
+
+python:
+  - "2.7"
+  - "3.4"
+
+before_install:
+  - sudo apt-get install liblua5.1-dev
+
+install:
+  - "pip install --upgrade pip"
+  - "pip install --trusted-host content.faforever.com -r requirements.txt"
+  - "pip install --trusted-host content.faforever.com -r requirements-dev.txt"
+
+script:
+  - py.test --cov faftools --cov-report term-missing
+
+after_success:
+  - coveralls
