@@ -1,7 +1,7 @@
 try:
     import lupa
 
-    def from_lua(input: str):
+    def from_lua(input):
         """
         Use Lupa as a parser by actually running the code
         :param input:
