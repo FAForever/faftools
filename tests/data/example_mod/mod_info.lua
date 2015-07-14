@@ -15,14 +15,6 @@ ui_only = false
 conflicts = {}
 _faf_modname = 'faf'
 mountpoints = {
-    ENV = "/env",
-    LOC = '/loc',
-    SCHOOK = '/schook',
-    effects = '/effects',
-    lua = '/lua',
-    meshes = '/meshes',
-    modules = '/modules',
-    projectiles = '/projectiles',
-    textures = '/textures',
-    units = '/units'
+    env = "/env",
+    units = '/units',
 }
