@@ -1,4 +1,5 @@
 -f https://content.faforever.com/wheel/
 lupa
-marshmallow
+docopt
+marshmallow==2.0.0b4
 -e .
