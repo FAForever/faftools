@@ -72,13 +72,14 @@ def validate_mod_folder(folder):
     :param folder:
     :return: True
     """
+    folder = Path(folder)
     schema = ModInfoSchema()
-    with Path(folder, 'mod_info.lua').open() as f:
+    with (folder / 'mod_info.lua').open() as f:
         lua_table = from_lua(f.read())
     data, errors = schema.load(dict(lua_table))
     if not errors:
         for subdir, vfs_point in data['mountpoints'].items():
-            if not Path(folder, subdir).exists():
+            if not (folder / subdir).exists():
                 raise KeyError("Mod doesn't contain folder for mountpoint: {}".format(subdir))
             if not PurePosixPath(vfs_point).is_absolute():
                 raise ValueError("Mountpoint for {} is relative: {}".format(subdir, vfs_point))
