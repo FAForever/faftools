@@ -8,6 +8,7 @@ def test_parse_mod_info():
     assert mod_info['name'] == 'Forged Alliance Forever'
     assert mod_info['version'] == 3642
     assert mod_info['_faf_modname'] == 'faf'
+    assert mod_info['mountpoints']['env'] == '/env'
 
 def test_validate_mod_folder():
     validate_mod_folder(Path('tests/data/example_mod/'))
