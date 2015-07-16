@@ -65,5 +65,4 @@ def validate_mod_folder(folder):
             if not PurePosixPath(vfs_point).is_absolute():
                 raise ValueError("Mountpoint for {} is relative: {}".format(subdir, vfs_point))
     # TODO: Validate blueprints found using the non existing blueprint compiler
-    return True
 
