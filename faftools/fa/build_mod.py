@@ -39,21 +39,26 @@ def build_mod(mod_folder):
     modfiles = []
     for mount, vfs_point in mod_info['mountpoints'].items():
         mount_id = db_ids.get(mount.lower(), '0')
-        mount = mod_folder / mount
+        mount_path = mod_folder / mount
         commit = subprocess.check_output(['git', 'rev-parse', 'HEAD']).decode().strip()
-        shasum = subprocess.check_output(['tar cf - ' + shlex.quote(str(mount))
+        shasum = subprocess.check_output(['tar cf - ' + shlex.quote(str(mount_path))
                                           + '| shasum'], shell=True).decode().split(' ')[0].strip()
-        cache_name = mount.name + "." + shasum + ".zip"
+        cache_name = mount_path.name + "." + shasum + ".zip"
         cache_path = mod_folder / 'build' / cache_name
         if not cache_path.exists():
             # Build archive
-            subprocess.check_output(['git', 'archive', shlex.quote(commit), shlex.quote(mount.name), '-o' + str(cache_path), '-9'])
-            logger.info("{} was changed, rebuilding".format(mount, shasum))
+            subprocess.check_output(['git',
+                                     '-C',
+                                     str(mount_path),
+                                     'archive', shlex.quote(commit),
+                                     shlex.quote(mount),
+                                     '-o' + str(cache_path), '-9'])
+            logger.info("{} was changed, rebuilding".format(mount_path, shasum))
         else:
-            logger.info("{} (ID: {}) not changed".format(mount.name, mount_id))
+            logger.info("{} (ID: {}) not changed".format(mount_path.name, mount_id))
 
         md5sum = subprocess.check_output(['md5sum', str(cache_path)]).decode().split(' ')[0].strip()
-        modfiles.append({'filename': mount.name,
+        modfiles.append({'filename': mount_path.name,
                          'path': cache_path,
                          'md5': md5sum,
                          'sha1': shasum,
