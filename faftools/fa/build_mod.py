@@ -40,15 +40,19 @@ def build_mod(mod_folder):
     for mount, vfs_point in mod_info['mountpoints'].items():
         mount_id = db_ids.get(mount.lower(), '0')
         mount_path = mod_folder / mount
+        logger.info("Mountpoint: {}, path: {}, id: {}".format(mount, mount_path, mount_id))
         commit = subprocess.check_output(['git',
                                           '-C',
                                           str(mount_path),
                                           'rev-parse',
                                           'HEAD']).decode().strip()
+        logger.info("Using commit: {}".format(commit))
         shasum = subprocess.check_output(['tar cf - ' + shlex.quote(str(mount_path))
                                           + '| shasum'], shell=True).decode().split(' ')[0].strip()
+        logger.info("Current shasum: {}".format(shasum))
         cache_name = mount_path.name + "." + shasum + ".zip"
         cache_path = mod_folder / 'build' / cache_name
+        logger.info("Cache path: {}".format(cache_path))
         if not cache_path.exists():
             # Build archive
             subprocess.check_output(['git',
