@@ -55,7 +55,7 @@ def build_mod(mod_folder):
         logger.info("Cache path: {}".format(cache_path))
         if not cache_path.exists():
             # Build archive
-            cmd = ['git', '-C', str(mount_path), 'archive', shlex.quote(commit), shlex.quote(mount), '-o', shlex.quote(cache_path), '-9']
+            cmd = ['git', '-C', str(mount_path), 'archive', commit, mount, '-o', str(cache_path), '-9']
             logger.info(repr(cmd))
             subprocess.check_output(cmd)
             logger.info("{} was changed, rebuilding".format(mount_path, shasum))
