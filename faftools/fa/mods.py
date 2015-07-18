@@ -3,6 +3,9 @@ from faftools.lua import from_lua
 
 from pathlib import Path, PurePosixPath
 
+import logging
+logger = logging.getLogger(__name__)
+
 class MapField(fields.Field):
     def __init__(self, from_cls, to_cls, **kwargs):
         super(MapField, self).__init__(**kwargs)
@@ -66,11 +69,11 @@ def parse_mod_info(file):
     else:
         raise ValueError(errors)
 
+
 def validate_mod_folder(folder):
     """
     Validate the mod found in folder
-    :param folder:
-    :return: True
+    :param folder: local path to the mod
     """
     folder = Path(folder)
     schema = ModInfoSchema()
@@ -84,4 +87,5 @@ def validate_mod_folder(folder):
             if not PurePosixPath(vfs_point).is_absolute():
                 raise ValueError("Mountpoint for {} is relative: {}".format(subdir, vfs_point))
     # TODO: Validate blueprints found using the non existing blueprint compiler
+
 
