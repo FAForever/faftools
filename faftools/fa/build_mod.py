@@ -14,7 +14,7 @@ def build_mod(mod_folder):
     Perform deployment of game code (FA repo) on this machine
 
     :param mod_folder Path: local path to the mod
-    :return: (status: str, description: str)
+    :return: a list of packed mod dictionaries
     """
     validate_mod_folder(mod_folder)
     mod_folder = Path(mod_folder)
@@ -36,7 +36,9 @@ def build_mod(mod_folder):
         'units': 21,
         'etc': 22
     }
+    modfiles = []
     for mount, vfs_point in mod_info['mountpoints'].items():
+        mount_id = db_ids.get(mount.name, '0')
         mount = mod_folder / mount
         commit = subprocess.check_output(['git', 'rev-parse', 'HEAD']).decode().strip()
         shasum = subprocess.check_output(['tar cf - ' + shlex.quote(str(mount))
@@ -46,10 +48,17 @@ def build_mod(mod_folder):
         if not cache_path.exists():
             # Build archive
             subprocess.check_output(['git', 'archive', shlex.quote(commit), shlex.quote(mount.name), '-o' + str(cache_path), '-9'])
-            md5sum = subprocess.check_output(['md5sum', str(cache_path)]).decode().split(' ')[0].strip()
-            logger.info("{} was changed, new md5sum: {}".format(mount, md5sum))
+            logger.info("{} was changed, rebuilding".format(mount, shasum))
         else:
-            logger.info("{} (ID: {}) not changed".format(mount.name, db_ids.get(mount.name, 'unknown')))
+            logger.info("{} (ID: {}) not changed".format(mount.name, mount_id))
+
+        md5sum = subprocess.check_output(['md5sum', str(cache_path)]).decode().split(' ')[0].strip()
+        modfiles.append({'filename': mount.name,
+                         'path': cache_path,
+                         'md5': md5sum,
+                         'sha1': shasum,
+                         'id': mount_id})
+    return modfiles
 
 if __name__ == '__main__':
     logging.basicConfig(level=logging.INFO)
