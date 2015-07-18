@@ -38,7 +38,7 @@ def build_mod(mod_folder):
     }
     modfiles = []
     for mount, vfs_point in mod_info['mountpoints'].items():
-        mount_id = db_ids.get(mount.name, '0')
+        mount_id = db_ids.get(mount.name.lower(), '0')
         mount = mod_folder / mount
         commit = subprocess.check_output(['git', 'rev-parse', 'HEAD']).decode().strip()
         shasum = subprocess.check_output(['tar cf - ' + shlex.quote(str(mount))
