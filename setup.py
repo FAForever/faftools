@@ -9,5 +9,6 @@ setup(
     license='GPLv3',
     author='Michael Sondergaard',
     author_email='sheeo@sheeo.dk',
-    description='faftools project'
+    description='faftools project',
+    requires=['lupa', 'docopt', 'pathlib', 'marshmallow']
 )
