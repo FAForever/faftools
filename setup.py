@@ -8,7 +8,7 @@ setup(
     packages=['faf'] + find_packages(),
     license='GPLv3',
     author='Michael Sondergaard',
-    author_email='sheeo@sheeo.dk',
+    author_email='sheeo@faforever.com',
     description='faftools project',
     requires=['lupa', 'docopt', 'pathlib', 'marshmallow']
 )
