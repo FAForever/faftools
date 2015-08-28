@@ -5,7 +5,7 @@ setup(
     name='faftools',
     version='0.1',
     url='http://www.faforever.com',
-    packages=find_packages(),
+    packages=['faf'] + find_packages(),
     license='GPLv3',
     author='Michael Sondergaard',
     author_email='sheeo@sheeo.dk',
