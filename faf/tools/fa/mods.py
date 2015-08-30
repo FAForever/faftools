@@ -1,9 +1,9 @@
-from faf.schema.mod_info import ModInfoSchema
-from faftools.lua import from_lua
-
 from pathlib import Path, PurePosixPath
-
 import logging
+
+from faf.schema import ModInfoSchema
+from faf.tools.lua import from_lua
+
 logger = logging.getLogger(__name__)
 
 

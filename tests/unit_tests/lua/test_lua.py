@@ -1,4 +1,4 @@
-from faftools import lua
+from faf.tools import lua
 
 def test_emits_string():
     assert lua.to_lua('python string') == '"python string"'

@@ -1,6 +1,6 @@
-from faftools.fa.mods import parse_mod_info, validate_mod_folder
-
 from pathlib import Path
+
+from faf.tools.fa.mods import parse_mod_info, validate_mod_folder
 
 def test_parse_mod_info():
     test_file = Path('tests/data/example_mod/mod_info.lua')
