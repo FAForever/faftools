@@ -12,3 +12,7 @@ try:
         return lua.globals()
 except ImportError as e:
     print("Ignoring lupa import error: %s" % e)
+
+    def from_lua(input):
+        print("Can't parse lua code in this environment")
+        return input
