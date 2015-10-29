@@ -1,5 +1,4 @@
 from marshmallow import Schema, fields
-from faf.schema.fields import ListField, MapField
 
 
 class ModInfoSchema(Schema):
@@ -22,8 +21,8 @@ class ModInfoSchema(Schema):
     exclusive = fields.Boolean(default=False)
     ui_only = fields.Boolean(default=False)
     icon = fields.String(default='mod_icon.dds')
-    requires = ListField(fields.String())
-    conflicts = ListField(fields.String())
-    before = ListField(fields.String())
-    after = ListField(fields.String())
-    mountpoints = MapField(fields.String(), fields.String())
+    requires = fields.List(fields.String())
+    conflicts = fields.Dict()
+    before = fields.List(fields.String())
+    after = fields.List(fields.String())
+    mountpoints = fields.Dict()
