@@ -15,6 +15,17 @@ class AvatarSchema(Schema):
     url = fields.Url(required=True)
     description = fields.String(required=True)
 
+    class Meta:
+        type_ = 'avatars'
+
+class ClanSchema(Schema):
+    id = fields.Int(dump_only=True)
+    name = fields.String(required=True)
+    tag = fields.String(required=True)
+
+    class Meta:
+        type_ = 'clans'
+
 
 class PlayerSchema(Schema):
     id = fields.Int(dump_only=True)
@@ -28,7 +39,7 @@ class PlayerSchema(Schema):
         '/clans/{clan_id}',
         related_url_kwargs={'clan_id': "<id>"},
         include_data=False,
-        type_="clan"
+        type_='clans'
     )
 
     class Meta:

@@ -6,4 +6,4 @@ from .mod_schema import ModSchema
 from .map_schema import MapSchema
 
 # Increment me according to semver rules for compatibility
-API_VERSION = '0.0.3'
+API_VERSION = '0.0.4'
