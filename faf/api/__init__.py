@@ -7,7 +7,7 @@ from .map_schema import MapSchema
 from .bugreport_schema import BugReportSchema, BugReportTargetSchema
 
 # Increment me according to semver rules for compatibility
-API_VERSION = '0.0.5'
+API_VERSION = '0.1.0'
 
 API_TYPES = {
     'player': PlayerSchema,

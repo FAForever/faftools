@@ -1,0 +1,24 @@
+{
+    "data": {
+        "type": "bugreport",
+        "id": null,
+        "attributes": {
+            "log": "",
+            "title": "Sample bug",
+            "automatic": false,
+            "target": {
+                "data": {
+                    "type": "bugreport_target",
+                    "id": "FAForever/api/tree/develop",
+                    "attributes": {
+                        "name": "FAForever/api",
+                        "ref": "develop",
+                        "url": "http://github.com/FAForever/api"
+                    }
+                }
+            },
+            "description": "API lacks implementation of bug reports",
+            "traceback": "Some traceback"
+        }
+    }
+}

@@ -2,18 +2,33 @@ from marshmallow_jsonapi import Schema, fields
 
 
 class BugReportTargetSchema(Schema):
-    id = fields.String()
-    name = fields.String()
+    """
+    Represents the target of a bug report.
+
+    At minimum the target should have a name.
+
+    Optionally include detailed information such as a URL describing the target,
+    a branch name and a hash of the SCM revision.
+    """
+    id = fields.FormattedString("{name}/tree/{ref}")
+
+    name = fields.String(required=True)
 
     url = fields.String()
-    branch = fields.String()
-    hash = fields.String()
+
+    ref = fields.String(default='master')
+
+    class Meta:
+        type_ = 'bugreport_target'
 
 
 class BugReportSchema(Schema):
-    id = fields.Integer(dump_only=True)
+    """
+    Represents a generic bug report.
+    """
+    id = fields.String(dump_only=True)
 
-    target = fields.Nested(BugReportTargetSchema, required=True)
+    target = fields.Nested(BugReportTargetSchema)
     automatic = fields.Boolean(default=False)
 
     title = fields.String(required=True)
@@ -21,3 +36,6 @@ class BugReportSchema(Schema):
 
     log = fields.String()
     traceback = fields.String()
+
+    class Meta:
+        type_ = 'bugreport'
