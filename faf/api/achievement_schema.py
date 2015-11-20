@@ -18,4 +18,5 @@ class AchievementSchema(Schema):
     unlocked_icon_url = fields.String(allow_none=True)
 
     class Meta:
+        additional = ['id']
         type_ = "achievement"
