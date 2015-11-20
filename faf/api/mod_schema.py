@@ -8,7 +8,7 @@ class ModSchema(Schema):
 
     id = fields.Str()
 
-    name = fields.String()
+    name = fields.String(required=True)
     description = fields.String()
     version = fields.String()
     author = fields.String()

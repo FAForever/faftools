@@ -6,11 +6,21 @@ class RatingSchema(Schema):
     mean = fields.Float()
     deviation = fields.Float()
 
+    class Meta:
+        type_ = 'ratings'
+
+
+class AvatarSchema(Schema):
+    id = fields.Int(dump_only=True)
+    url = fields.Url(required=True)
+    description = fields.String(required=True)
+
 
 class PlayerSchema(Schema):
     id = fields.Int(dump_only=True)
     login = fields.Str()
-    avatar = fields.Url()
+    avatar = fields.Nested(AvatarSchema)
+
     global_rating = fields.Nested(RatingSchema)
     ladder_rating = fields.Nested(RatingSchema)
 
@@ -22,4 +32,4 @@ class PlayerSchema(Schema):
     )
 
     class Meta:
-        type_ = 'player'
+        type_ = 'players'
