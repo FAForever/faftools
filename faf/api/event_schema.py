@@ -8,7 +8,7 @@ class EventSchema(Schema):
 
     id = fields.Str()
 
-    image_url = fields.String()
+    image_url = fields.String(allow_none=True)
     type = fields.String()
     name = fields.String()
 
