@@ -7,7 +7,7 @@ class RatingSchema(Schema):
     deviation = fields.Float()
 
     class Meta:
-        type_ = 'ratings'
+        type_ = 'rating'
 
 
 class AvatarSchema(Schema):
@@ -16,7 +16,7 @@ class AvatarSchema(Schema):
     description = fields.String(required=True)
 
     class Meta:
-        type_ = 'avatars'
+        type_ = 'avatar'
 
 class ClanSchema(Schema):
     id = fields.Int(dump_only=True)
@@ -24,7 +24,7 @@ class ClanSchema(Schema):
     tag = fields.String(required=True)
 
     class Meta:
-        type_ = 'clans'
+        type_ = 'clan'
 
 
 class PlayerSchema(Schema):
@@ -43,4 +43,4 @@ class PlayerSchema(Schema):
     )
 
     class Meta:
-        type_ = 'players'
+        type_ = 'player'

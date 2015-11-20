@@ -22,4 +22,4 @@ class ModSchema(Schema):
     create_time = fields.DateTime()
 
     class Meta:
-        type_ = "mods"
+        type_ = "mod"

@@ -24,4 +24,4 @@ class MapSchema(Schema):
     rating = fields.Float(dump_only=True)
 
     class Meta:
-        type_ = 'maps'
+        type_ = 'map'
