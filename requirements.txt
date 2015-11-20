@@ -1,3 +1,4 @@
+requests
 -f https://content.faforever.com/wheel/
 lupa
 docopt
