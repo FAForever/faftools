@@ -6,7 +6,7 @@ class PlayerAchievementSchema(Schema):
     Schema for 'player_achievement' type API objects.
     """
 
-    id = fields.Str()
+    id = fields.Str(dump_only=True)
 
     achievement_id = fields.String()
     state = fields.String()
