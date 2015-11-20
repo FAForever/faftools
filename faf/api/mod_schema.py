@@ -2,7 +2,7 @@ from marshmallow_jsonapi import Schema, fields
 
 
 class ModSchema(Schema):
-    id = fields.Int(dump_only=True)
+    id = fields.Str()
 
     name = fields.String()
     description = fields.String()
