@@ -2,6 +2,10 @@ from marshmallow_jsonapi import Schema, fields
 
 
 class ModSchema(Schema):
+    """
+    Schema for 'mods' type API objects.
+    """
+
     id = fields.Str()
 
     name = fields.String()
