@@ -1,7 +1,7 @@
 from marshmallow_jsonapi import Schema, fields
 
 
-class EventSchema(Schema):
+class PlayerEventSchema(Schema):
     """
     Schema for 'player_event' type API objects.
     """
