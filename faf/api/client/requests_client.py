@@ -1,6 +1,6 @@
 import requests
 
-from faf.api.client_base import BaseApiClient
+from .client_base import BaseApiClient
 
 
 class RequestsApiClient(BaseApiClient):

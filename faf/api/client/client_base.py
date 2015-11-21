@@ -1,7 +1,7 @@
 import json
 
 from abc import abstractmethod
-from . import API_TYPES, FAF_API_URL
+from faf.api import API_TYPES, FAF_API_URL
 
 
 class ApiException(Exception):
