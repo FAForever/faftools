@@ -6,7 +6,7 @@ class AchievementSchema(Schema):
     Schema for 'achievement' type API objects.
     """
 
-    id = fields.Str(dump_only=True)
+    id = fields.Str()
 
     name = fields.String()
     description = fields.String()
