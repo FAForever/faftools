@@ -32,10 +32,11 @@ class BaseApiClient:
         """
         pass
 
-    def deserialize_obj(self, obj):
-        type_ = obj['type']
+    def deserialize_obj(self, obj, many=False):
+        first = obj.get('data', {})
+        type_ = first.get('type', None)
         schema = API_TYPES.get(type_)
-        result, errors = schema.load(obj)
+        result, errors = schema.load(obj, many=many)
         if errors:
             raise ApiException(errors)
         return result
@@ -51,10 +52,7 @@ class BaseApiClient:
         """
         response = self._session.get(self._base_url + url, headers=self._headers)
         decoded = json.loads(response.content.decode('utf-8'))
-        if isinstance(decoded['data'], list):
-            return map(self.deserialize_obj, decoded['data'])
-        else:
-            return self.deserialize_obj(decoded['data'])
+        return self.deserialize_obj(decoded, len(decoded.get('data', [])) > 1)
 
     def post(self, url, data, **kwargs):
         """

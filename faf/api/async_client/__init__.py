@@ -20,10 +20,7 @@ if sys.version_info[:2] == (3, 5):
             """
             response = await self._session.get(self._base_url + url, headers=self._headers)
             decoded = json.loads(response.content.decode('utf-8'))
-            if isinstance(decoded['data'], list):
-                return map(self.deserialize_obj, decoded['data'])
-            else:
-                return self.deserialize_obj(decoded['data'])
+            return self.deserialize_obj(decoded, len(decoded.get('data', [])) > 1)
 
         async def post(self, url, data, **kwargs):
             """
