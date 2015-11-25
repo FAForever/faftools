@@ -10,5 +10,6 @@ setup(
     author='Michael Sondergaard',
     author_email='sheeo@faforever.com',
     description='faftools project',
-    requires=['lupa', 'docopt', 'pathlib', 'marshmallow', 'marshmallow_jsonapi']
+    requires=['lupa'],
+    install_requires=['docopt', 'pathlib', 'marshmallow', 'marshmallow_jsonapi']
 )
