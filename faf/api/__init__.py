@@ -11,7 +11,7 @@ from .map_schema import MapSchema
 from .bugreport_schema import BugReportSchema, BugReportTargetSchema
 
 # Increment me according to semver rules for compatibility
-API_VERSION = '0.1.1'
+API_VERSION = '0.2.0'
 
 API_TYPES = {
     'player': PlayerSchema,
@@ -26,6 +26,6 @@ API_TYPES = {
     'bugreport_target': BugReportTargetSchema
 }
 
-FAF_API_URL = 'http://localhost:8080'
+FAF_API_URL = 'http://api.dev.faforever.com'
 
 from .client import ApiClient

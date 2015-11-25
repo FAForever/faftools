@@ -8,6 +8,13 @@ class BugReportTarget:
     def id(self):
         return "{}/tree/{}".format(self.name, self.ref)
 
+    def __str__(self):
+        return "BugReportTarget({name},{url},{ref})".format(
+            **dict(name=self.name,
+                   url=self.url,
+                   ref=self.ref)
+        )
+
 
 class BugReport:
     """
@@ -28,3 +35,11 @@ class BugReport:
         self.description = description
         self.log = log
         self.traceback = traceback
+
+    def __str__(self):
+        return "BugReport({id},{title},{target},{automatic})".format(
+            **dict(id=self.id,
+                   title=self.title,
+                   target=self.target,
+                   automatic=self.automatic)
+        )

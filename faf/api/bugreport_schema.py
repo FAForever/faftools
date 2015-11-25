@@ -1,5 +1,7 @@
 from marshmallow_jsonapi import Schema, fields
 
+from faf.domain.bugs import BugReport, BugReportTarget
+
 
 class BugReportTargetSchema(Schema):
     """
@@ -36,6 +38,10 @@ class BugReportSchema(Schema):
 
     log = fields.String()
     traceback = fields.String()
+
+    def make_report(self, **kwargs):
+        kwargs['target'] = BugReportTarget(**kwargs.get('target'))
+        return BugReport(**kwargs)
 
     class Meta:
         type_ = 'bugreport'

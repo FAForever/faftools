@@ -54,15 +54,14 @@ class BaseApiClient:
         decoded = json.loads(response.content.decode('utf-8'))
         return self.deserialize_obj(decoded, len(decoded.get('data', [])) > 1)
 
-    def post(self, url, data, **kwargs):
+    def post(self, url, **kwargs):
         """
         Serialize and POST the given objects to the given url
         :param url: url to POST to
-        :param data: objects to send
         :param kwargs: arguments for the underlying implementation
         :return: response object
         """
-        return self._session.post(self._base_url + url, data=data, **kwargs)
+        return self._session.post(self._base_url + url, **kwargs)
 
     def put(self, url, **kwargs):
         """
