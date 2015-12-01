@@ -6,7 +6,7 @@ class MapSchema(Schema):
     Represents various map metadata
     """
     id = fields.Integer()
-    name = fields.String(required=True)
+    display_name = fields.String(required=True)
     description = fields.String(required=True)
     version = fields.String(required=True)
     filename = fields.String(required=True)
