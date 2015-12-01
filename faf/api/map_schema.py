@@ -14,8 +14,8 @@ class MapSchema(Schema):
     map_type = fields.String()
     max_players = fields.Integer()
     battle_type = fields.String()
-    map_size_x = fields.Float()
-    map_size_y = fields.Float()
+    map_size_x = fields.Integer()
+    map_size_y = fields.Integer()
 
     # Read only fields
     downloads = fields.Integer(dump_only=True)
