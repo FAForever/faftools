@@ -22,6 +22,9 @@ class MapSchema(Schema):
     num_draws = fields.Integer(dump_only=True)
     times_played = fields.Integer(dump_only=True)
     rating = fields.Float(dump_only=True)
+    download_url = fields.Url(dump_only=True)
+    thumbnail_url_small = fields.Url(dump_only=True)
+    thumbnail_url_large = fields.Url(dump_only=True)
 
     class Meta:
         type_ = 'map'
