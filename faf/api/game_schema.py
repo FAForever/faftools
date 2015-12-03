@@ -14,7 +14,7 @@ class GameStatsSchema(Schema):
     game_mod = fields.Str()
     player_id = fields.Integer()
     map_id = fields.Integer()
-    rating = fields.Double()
+    rating = fields.Float()
     game_mod_id = fields.Float()
 
     class Meta:
