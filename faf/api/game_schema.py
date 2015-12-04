@@ -18,7 +18,7 @@ class GameStatsSchema(Schema):
     game_mod_id = fields.Float()
 
     class Meta:
-        type_ = "game stats"
+        type_ = "game_stats"
 
 
 class GamePlayerStatsSchema(Schema):
@@ -42,5 +42,5 @@ class GamePlayerStatsSchema(Schema):
     score_time = fields.DateTime()
 
     class Meta:
-        type_ = "game player stats"
+        type_ = "game_player_stats"
 
