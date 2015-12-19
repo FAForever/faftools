@@ -28,11 +28,11 @@ class GamePlayerStatsSchema(Schema):
     """
 
     id = fields.Str()
-    playerId = fields.Int()
+    player_id = fields.Int()
     team = fields.Int()
     faction = fields.Int()
     color = fields.Int()
-    ai = fields.Int()
+    has_ai = fields.Bool()
     place = fields.Int()
     mean = fields.Float()
     deviation = fields.Float()
