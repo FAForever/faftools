@@ -11,10 +11,11 @@ class GameStatsSchema(Schema):
     game_name = fields.Str()
     victory_condition = fields.Str()
     start_time = fields.DateTime()
-    end_time = fields.DateTime()
     game_mod = fields.Str()
-    player_id = fields.Integer()
-    map_id = fields.Integer()
+    player_id = fields.Str()
+    map_id = fields.Str()
+    host = fields.Str()
+    validity = fields.Str()
 
     class Meta:
         type_ = "game_stats"
@@ -27,7 +28,7 @@ class GamePlayerStatsSchema(Schema):
     """
 
     id = fields.Str()
-    player_id = fields.Int()
+    player_id = fields.Str()
     team = fields.Int()
     faction = fields.Int()
     color = fields.Int()
