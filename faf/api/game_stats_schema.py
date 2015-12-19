@@ -9,13 +9,12 @@ class GameStatsSchema(Schema):
 
     id = fields.Str()
     game_name = fields.Str()
+    victory_condition = fields.Str()
     start_time = fields.DateTime()
     end_time = fields.DateTime()
     game_mod = fields.Str()
     player_id = fields.Integer()
     map_id = fields.Integer()
-    rating = fields.Float()
-    game_mod_id = fields.Float()
 
     class Meta:
         type_ = "game_stats"
