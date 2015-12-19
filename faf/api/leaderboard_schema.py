@@ -5,7 +5,7 @@ class LeaderboardSchema(Schema):
     """
     Represents leaderboard metadata
     """
-    id = fields.Integer()
+    id = fields.String()
     login = fields.String()
     mean = fields.Float()
     deviation = fields.Float()
