@@ -37,8 +37,6 @@ class GamePlayerStatsSchema(Schema):
     place = fields.Int()
     mean = fields.Float()
     deviation = fields.Float()
-    after_mean = fields.Float()
-    after_deviation = fields.Float()
     score = fields.Int()
     score_time = fields.DateTime()
 
