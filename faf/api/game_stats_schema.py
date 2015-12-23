@@ -30,6 +30,7 @@ class GamePlayerStatsSchema(Schema):
     id = fields.Str()
     game_id = fields.Str()
     player_id = fields.Str()
+    login = fields.Str()
     team = fields.Int()
     faction = fields.Int()
     color = fields.Int()
