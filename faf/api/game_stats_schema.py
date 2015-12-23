@@ -28,7 +28,9 @@ class GamePlayerStatsSchema(Schema):
     """
 
     id = fields.Str()
+    game_id = fields.Str()
     player_id = fields.Str()
+    login = fields.Str()
     team = fields.Int()
     faction = fields.Int()
     color = fields.Int()
@@ -36,8 +38,6 @@ class GamePlayerStatsSchema(Schema):
     place = fields.Int()
     mean = fields.Float()
     deviation = fields.Float()
-    after_mean = fields.Float()
-    after_deviation = fields.Float()
     score = fields.Int()
     score_time = fields.DateTime()
 
