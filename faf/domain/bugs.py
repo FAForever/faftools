@@ -8,6 +8,11 @@ class BugReportTarget:
     def id(self):
         return "{}/tree/{}".format(self.name, self.ref)
 
+    def __eq__(self, other):
+        if not isinstance(other, BugReportTarget):
+            return False
+        return other.name == self.name and other.ref == self.ref
+
     def __str__(self):
         return "BugReportTarget({name},{url},{ref})".format(
             **dict(name=self.name,
@@ -27,7 +32,9 @@ class BugReport:
                  automatic=False,
                  description="",
                  log="",
-                 traceback=""):
+                 traceback="",
+                 create_time=None,
+                 update_time=None):
         self.title = title
         self.id = id
         self.target = target
@@ -35,6 +42,7 @@ class BugReport:
         self.description = description
         self.log = log
         self.traceback = traceback
+        self.create_time, self.update_time = create_time, update_time
 
     def __str__(self):
         return "BugReport({id},{title},{target},{automatic})".format(
