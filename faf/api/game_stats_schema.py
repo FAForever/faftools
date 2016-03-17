@@ -34,7 +34,7 @@ class GamePlayerStatsSchema(Schema):
     team = fields.Int()
     faction = fields.Int()
     color = fields.Int()
-    has_ai = fields.Bool()
+    is_ai = fields.Bool()
     place = fields.Int()
     mean = fields.Float()
     deviation = fields.Float()
