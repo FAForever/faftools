@@ -18,4 +18,4 @@ class Ranked1v1Schema(Schema):
     ranking = fields.Integer()
 
     class Meta:
-        type_ = 'ranked1v1'
+        type_ = 'rating'
