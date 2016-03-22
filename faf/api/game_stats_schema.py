@@ -11,9 +11,11 @@ class GameStatsSchema(Schema):
     game_name = fields.Str()
     victory_condition = fields.Str()
     start_time = fields.DateTime()
-    game_mod = fields.Str()
-    player_id = fields.Str()
     map_name = fields.Str()
+    map_id = fields.Str()
+    mod_name = fields.Str()
+    mod_id = fields.Str()
+    player_id = fields.Str()
     host = fields.Str()
     validity = fields.Str()
 
