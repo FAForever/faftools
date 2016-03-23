@@ -1,12 +1,13 @@
 from marshmallow_jsonapi import Schema, fields
 
 
-class GameStatsSchema(Schema):
+class GameStatsAndGamePlayerStatsSchema(Schema):
 
     """
-    Schema for 'game stats' type API objects.
+    Schema for 'game stats' joined with 'game player stats' type API objects.
     """
 
+    # 'game stats' attributes
     id = fields.Str()
     game_name = fields.Str()
     victory_condition = fields.Str()
@@ -15,21 +16,10 @@ class GameStatsSchema(Schema):
     map_id = fields.Str()
     mod_name = fields.Str()
     mod_id = fields.Str()
-    player_id = fields.Str()
     host = fields.Str()
     validity = fields.Str()
 
-    class Meta:
-        type_ = "game_stats"
-
-
-class GamePlayerStatsSchema(Schema):
-
-    """
-    Schema for 'game player stats' type API objects.
-    """
-
-    id = fields.Str()
+    # 'game player' attributes
     game_id = fields.Str()
     player_id = fields.Str()
     login = fields.Str()
@@ -44,5 +34,5 @@ class GamePlayerStatsSchema(Schema):
     score_time = fields.DateTime()
 
     class Meta:
-        type_ = "game_player_stats"
+        type_ = "game_stats"
 
