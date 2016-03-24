@@ -19,7 +19,8 @@ class GameStatsAndGamePlayerStatsSchema(Schema):
     host = fields.Str()
     validity = fields.Str()
 
-    # 'game player' attributes
+    # 'game player stats' attributes
+    gps_id = fields.Str()
     game_id = fields.Str()
     player_id = fields.Str()
     login = fields.Str()
