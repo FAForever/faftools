@@ -1,7 +1,7 @@
 from marshmallow_jsonapi import Schema, fields
 
 
-class GameStatsAndGamePlayerStatsSchema(Schema):
+class GameStats(Schema):
 
     """
     Schema for 'game stats' joined with 'game player stats' type API objects.
@@ -16,11 +16,11 @@ class GameStatsAndGamePlayerStatsSchema(Schema):
     map_id = fields.Str()
     mod_name = fields.Str()
     mod_id = fields.Str()
+    players = fields.Str()
     host = fields.Str()
     validity = fields.Str()
 
     # 'game player stats' attributes
-    gps_id = fields.Str()
     game_id = fields.Str()
     player_id = fields.Str()
     login = fields.Str()
