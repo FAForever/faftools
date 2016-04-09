@@ -12,7 +12,7 @@ class BugReportTargetSchema(Schema):
     Optionally include detailed information such as a URL describing the target,
     a branch name and a hash of the SCM revision.
     """
-    id = fields.FormattedString("{name}/tree/{ref}")
+    id = fields.FormattedString("{name}/tree/{ref}", dump_only=True)
     name = fields.String(required=True)
 
     url = fields.String()
