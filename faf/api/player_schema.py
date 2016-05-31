@@ -13,7 +13,7 @@ class RatingSchema(Schema):
 class AvatarSchema(Schema):
     id = fields.Int(dump_only=True)
     url = fields.Url(required=True)
-    description = fields.String(required=True)
+    tooltip = fields.String(required=True)
 
     class Meta:
         type_ = 'avatar'
