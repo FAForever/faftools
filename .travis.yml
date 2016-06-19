@@ -2,10 +2,10 @@ language: python
 
 python:
   - "2.7"
-  - "3.4"
+  - "3.5"
 
 before_install:
-  - sudo apt-get install liblua5.1-dev
+  - sudo apt-get install -y liblua5.1-dev libmagickwand-dev
 
 install:
   - "pip install --upgrade pip"

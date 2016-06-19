@@ -1,8 +1,9 @@
-requests
 -f https://content.faforever.com/wheel/
-lupa
+Wand
 docopt
-pathlib
+lupa
 marshmallow
 marshmallow-jsonapi
+pathlib
+requests
 -e .
