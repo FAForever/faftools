@@ -1,12 +1,18 @@
 import re
 from pathlib import Path
 from zipfile import ZipFile, ZipExtFile
-
 import struct
-from wand.drawing import Drawing
+# Wand seems to crash when using 32-bit env
+# https://github.com/dahlia/wand/issues/247
+#from wand.image import Image
+#from wand.image import Image, COMPOSITE_OPERATORS
+from PIL import Image
+import subprocess
+import os
+import math
+
 
 from faf.tools.lua import from_lua
-from wand.image import Image, COMPOSITE_OPERATORS
 
 # `id` mediumint(8) unsigned NOT NULL AUTO_INCREMENT,
 # `name` varchar(40) DEFAULT NULL,
@@ -25,6 +31,93 @@ from wand.image import Image, COMPOSITE_OPERATORS
 # UNIQUE KEY `map_filename` (`filename`),
 # KEY `mapuid` (`mapuid`)
 # ) ENGINE=InnoDB AUTO_INCREMENT=5692 DEFAULT CHARSET=latin1;
+
+class MapFile:
+    preview_sizes = {'small': (100, 100), 'large': (1024, 1024)}
+    preview_dir = None
+
+    def __init__(self, map_path):
+        self.filepath = map_path
+        self.mapname = os.path.splitext(map_path)[0]
+        self.preview_dir = os.path.dirname(map_path)
+        self._data = None
+        self._dds_image = None
+
+    def load_mapdata(self):
+        fp = open(self.filepath, 'rb')
+        fp.seek(30)
+        dds_size = struct.unpack('i', fp.read(4))[0]
+        self._data['dds'] = fp.read(dds_size)
+
+    @property
+    def data(self):
+        if self._data is None:
+            self._data = {}
+            self.load_mapdata()
+
+        return self._data
+
+    @property
+    def dds_path(self):
+        return os.path.join(self.preview_dir, '{}.dds'.format(self.mapname))
+
+    def preview_path(self, size):
+        return os.path.join(self.preview_dir, '{}.{}.png'.format(self.mapname, size))
+
+    def preview_exists(self, size):
+        return os.path.isfile(self.preview_path(size))
+
+    def get_dds_image(self):
+        if self._dds_image is None:
+            # dds header is 128 bytes
+            raw = self.data['dds'][128:]
+            dim = int(math.sqrt(len(raw)) / 2)
+            # bgra -> rgba
+            b, g, r, a = Image.frombuffer('RGBA', (dim, dim), raw, 'raw', 'RGBA', 0, 1).split()
+            self._dds_image = Image.merge('RGBA', (r, g, b, a))
+
+        return self._dds_image
+
+    def generate_preview(self, size):
+        img = self.get_dds_image()
+        preview = img.resize(self.preview_sizes[size])
+        preview.save(self.preview_path(size))
+
+    # alternative to Pillow, using ImageMagick command line
+    def generate_preview_cmdline(self, size):
+        dds_path = self.dds_path
+
+        if not os.path.isfile(dds_path):
+            dds_file = open(dds_path, 'wb')
+            dds_file.write(self.data['dds'])
+            dds_file.close()
+
+        png_path = self.preview_path(size)
+        params = ['convert', dds_path, "-resize", 'x'.join(self.preview_sizes[size]), png_path]
+        subprocess.check_call(params)
+
+        dds_path = self.dds_path
+        if os.path.isfile(dds_path):
+            os.remove(dds_path)
+
+    def generate_previews(self):
+        for size, _ in self.preview_sizes.items():
+            if not self.preview_exists(size):
+                self.generate_preview(size)
+
+    def get_previews(self):
+        self.generate_previews()
+
+        paths = []
+        for size, _ in self.preview_sizes.items():
+            paths.append(os.path.abspath(self.preview_path(size)))
+
+        return paths
+
+def generate_map_previews(map_path):
+    file = MapFile(map_path)
+    file.generate_previews()
+
 
 def parse_map_info(zip_file_or_folder):
     """
