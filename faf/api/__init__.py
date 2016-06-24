@@ -9,6 +9,7 @@ from .player_achievement_schema import PlayerAchievementSchema
 from .player_event_schema import PlayerEventSchema
 from .player_schema import PlayerSchema, RatingSchema
 from .mod_schema import ModSchema
+from .clan_schema import ClanSchema
 from .map_schema import MapSchema
 from .bugreport_schema import BugReportSchema, BugReportTargetSchema
 
