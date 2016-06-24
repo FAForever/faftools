@@ -11,5 +11,7 @@ setup(
     author_email='sheeo@faforever.com',
     description='faftools project',
     requires=['lupa'],
-    install_requires=['docopt', 'pathlib', 'marshmallow', 'marshmallow_jsonapi']
+    install_requires=['docopt', 'pathlib', 'marshmallow', 'marshmallow_jsonapi'],
+    package_data={'': ['faf/tools/lua/fa_functions.lua', 'faf/tools/fa/map_icons/*.png']},
+    include_package_data=True
 )
