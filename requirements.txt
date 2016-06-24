@@ -1,9 +1,11 @@
 -f https://content.faforever.com/wheel/
-Wand
+pillow
 docopt
 lupa
 marshmallow
 marshmallow-jsonapi
 pathlib
 requests
+pytest-cov
+pytest-mock
 -e .
