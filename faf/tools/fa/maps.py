@@ -2,72 +2,77 @@ import re
 from pathlib import Path
 from zipfile import ZipFile, ZipExtFile
 import struct
-# Wand seems to crash when using 32-bit env
-# https://github.com/dahlia/wand/issues/247
-#from wand.image import Image
-#from wand.image import Image, COMPOSITE_OPERATORS
 from PIL import Image
-import subprocess
 import os
 import math
 
-
 from faf.tools.lua import from_lua
 
-# `id` mediumint(8) unsigned NOT NULL AUTO_INCREMENT,
-# `name` varchar(40) DEFAULT NULL,
-# `description` longtext,
-# `max_players` decimal(2,0) DEFAULT NULL,
-# `map_type` varchar(15) DEFAULT NULL,
-# `battle_type` varchar(15) DEFAULT NULL,
-# `map_sizeX` decimal(4,0) DEFAULT NULL,
-# `map_sizeY` decimal(4,0) DEFAULT NULL,
-# `version` decimal(4,0) DEFAULT NULL,
-# `filename` varchar(200) DEFAULT NULL,
-# `hidden` tinyint(1) NOT NULL DEFAULT '0',
-# `mapuid` mediumint(8) unsigned NOT NULL,
-# PRIMARY KEY (`id`),
-# UNIQUE KEY `Combo` (`name`,`version`),
-# UNIQUE KEY `map_filename` (`filename`),
-# KEY `mapuid` (`mapuid`)
-# ) ENGINE=InnoDB AUTO_INCREMENT=5692 DEFAULT CHARSET=latin1;
+# Ratio of resource icon size to map size
+RESOURCE_ICON_RATIO = 0.01953125
+MAX_MAP_FILE_SIZE = 256 * 1024 * 1024
+
 
 class MapFile:
-    preview_sizes = {'small': (100, 100), 'large': (1024, 1024)}
-    preview_dir = None
-
     def __init__(self, map_path):
-        self.filepath = map_path
-        self.mapname = os.path.splitext(map_path)[0]
-        self.preview_dir = os.path.dirname(map_path)
+        self.map_path = map_path
+        self.mapname = os.path.splitext(os.path.basename(map_path))[0]
         self._data = None
         self._dds_image = None
 
-    def load_mapdata(self):
-        fp = open(self.filepath, 'rb')
-        fp.seek(30)
-        dds_size = struct.unpack('i', fp.read(4))[0]
-        self._data['dds'] = fp.read(dds_size)
+        self._is_zip = map_path.endswith('.zip')
+
+    def _read_save_file(self, file_pointer):
+        lua_code = file_pointer.read()
+        self._data['save'] = from_lua(lua_code)
+
+    def _read_map(self, content):
+        dds_size = struct.unpack('i', content[30:34])[0]
+        self._data['size'] = (
+            struct.unpack('f', content[16:20])[0],
+            struct.unpack('f', content[20:24])[0]
+        )
+        self._data['dds'] = content[34:35 + dds_size]
+
+    def _load_mapdata(self):
+        if self._is_zip:
+            validate_map_zip_file(self.map_path)
+
+            with ZipFile(self.map_path) as zip:
+                for member in zip.namelist():
+                    filename = os.path.basename(member)
+                    if filename.endswith('.scmap'):
+                        if zip.getinfo(member).file_size > MAX_MAP_FILE_SIZE:
+                            raise ValueError('Map is too big, max size is {} bytes'.format(MAX_MAP_FILE_SIZE))
+
+                        self._read_map(zip.read(member))
+
+                    elif filename.endswith('_save.lua'):
+                        with zip.open(member, 'r') as fp:
+                            self._read_save_file(fp)
+
+        else:
+            validate_map_folder(self.map_path)
+
+            for path in Path(self.map_path).iterdir():
+                filename = path.name
+                if filename.endswith('.scmap'):
+                    with open(str(path), 'rb') as fp:
+                        self._read_map(fp.read())
+
+                elif filename.endswith('_save.lua'):
+                    with open(str(path), 'r') as fp:
+                        self._read_save_file(fp)
 
     @property
     def data(self):
         if self._data is None:
             self._data = {}
-            self.load_mapdata()
+            self._load_mapdata()
 
         return self._data
 
-    @property
-    def dds_path(self):
-        return os.path.join(self.preview_dir, '{}.dds'.format(self.mapname))
-
-    def preview_path(self, size):
-        return os.path.join(self.preview_dir, '{}.{}.png'.format(self.mapname, size))
-
-    def preview_exists(self, size):
-        return os.path.isfile(self.preview_path(size))
-
-    def get_dds_image(self):
+    def _get_dds_image(self):
         if self._dds_image is None:
             # dds header is 128 bytes
             raw = self.data['dds'][128:]
@@ -78,47 +83,85 @@ class MapFile:
 
         return self._dds_image
 
-    def generate_preview(self, size):
-        img = self.get_dds_image()
-        preview = img.resize(self.preview_sizes[size])
-        preview.save(self.preview_path(size))
+    def generate_preview(self, size, target_path, mass_icon=None, hydro_icon=None, army_icon=None):
+        map_image = self._get_dds_image()
+        resized_image = map_image.resize((size, size))
 
-    # alternative to Pillow, using ImageMagick command line
-    def generate_preview_cmdline(self, size):
-        dds_path = self.dds_path
+        hydro_image = Image.open(hydro_icon).resize((int(size * RESOURCE_ICON_RATIO), int(
+            size * RESOURCE_ICON_RATIO))) if hydro_icon else None
 
-        if not os.path.isfile(dds_path):
-            dds_file = open(dds_path, 'wb')
-            dds_file.write(self.data['dds'])
-            dds_file.close()
+        mass_image = Image.open(mass_icon).resize((int(size * RESOURCE_ICON_RATIO), int(
+            size * RESOURCE_ICON_RATIO))) if mass_icon else None
 
-        png_path = self.preview_path(size)
-        params = ['convert', dds_path, "-resize", 'x'.join(self.preview_sizes[size]), png_path]
-        subprocess.check_call(params)
+        army_image = Image.open(army_icon).resize((int(size * RESOURCE_ICON_RATIO), int(
+            size * RESOURCE_ICON_RATIO))) if army_icon else None
 
-        dds_path = self.dds_path
-        if os.path.isfile(dds_path):
-            os.remove(dds_path)
+        self.add_markers(resized_image, mass_image, hydro_image, army_image)
 
-    def generate_previews(self):
-        for size, _ in self.preview_sizes.items():
-            if not self.preview_exists(size):
-                self.generate_preview(size)
+        resized_image.save(os.path.join(target_path.strpath, '{}.png'.format(self.mapname)))
 
-    def get_previews(self):
-        self.generate_previews()
+    def add_markers(self, target_image, mass_image=None, hydro_image=None, army_image=None):
+        markers = self.data['save']['Scenario']['MasterChain']['_MASTERCHAIN_']['Markers']
+        for marker_name, marker_data in markers.items():
+            if marker_data['resource']:
+                if mass_image and marker_data['type'] == 'Mass':
+                    self._add_marker(mass_image, marker_data, target_image)
+                elif hydro_image and marker_data['type'] == 'Hydrocarbon':
+                    self._add_marker(hydro_image, marker_data, target_image)
 
-        paths = []
-        for size, _ in self.preview_sizes.items():
-            paths.append(os.path.abspath(self.preview_path(size)))
+            elif army_image and marker_data['type'] == 'Blank Marker':
+                self._add_marker(army_image, marker_data, target_image)
 
-        return paths
+    def _add_marker(self, marker_image, marker_data, target_image):
+        x = marker_data['position'][1]
+        y = marker_data['position'][3]
+        width = self.data['size'][0]
+        height = self.data['size'][1]
 
-def generate_map_previews(map_path):
+        self._paint_on_image(marker_image, x / width, y / height, target_image)
+
+    @staticmethod
+    def _paint_on_image(image, x, y, target_image):
+        offset_x = int(x * target_image.width - image.width / 2)
+        offset_y = int(y * target_image.height - image.height / 2)
+
+        if offset_x < image.width / 2:
+            offset_x = int(image.width / 2)
+        elif offset_x >= target_image.width - image.width:
+            offset_x = int(target_image.width - image.width)
+
+        if offset_y < image.height / 2:
+            offset_y = int(image.height / 2)
+        elif offset_y >= target_image.height - image.height:
+            offset_y = int(target_image.height - image.height)
+
+        r, g, b, a = image.split()
+        top = Image.merge("RGB", (r, g, b))
+        mask = Image.merge("L", (a,))
+        target_image.paste(top, (offset_x, offset_y), mask)
+
+
+def generate_map_previews(map_path, sizes_to_paths, mass_icon=None, hydro_icon=None, army_icon=None):
+    """
+
+    :param map_path: Path to the map file (.scmap) to generate the previews for
+    :param sizes_to_paths: a dictionary that maps preview sizes (in pixels) to the directory in which the preview image should be generated in. Eg: {100: '/previews/small', 1024: '/previews/large'}
+    :param hydro_icon: the path to the hydro marker image
+    :param mass_icon: the path to the mass marker image
+    :param army_icon: the path to the army marker image
+    :return:
+    """
+    icons_dir = os.path.dirname(os.path.realpath(__file__))
+    mass_icon = mass_icon if mass_icon else os.path.join(icons_dir, 'map_icons', 'mass.png')
+    hydro_icon = hydro_icon if hydro_icon else os.path.join(icons_dir, 'map_icons', 'hydro.png')
+    army_icon = army_icon if army_icon else os.path.join(icons_dir, 'map_icons', 'army.png')
+
     file = MapFile(map_path)
-    file.generate_previews()
+    for size, path in sizes_to_paths.items():
+        file.generate_preview(size, path, mass_icon, hydro_icon, army_icon)
 
 
+# FIXME this has not been finished
 def parse_map_info(zip_file_or_folder):
     """
     Returns a broad description of the map, has the form:
@@ -150,10 +193,10 @@ def validate_scenario_file(file):
 
 
 required_files = {
-    '.*.scmap': lambda f: True,
-    '.*save.lua': lambda f: True,
-    '.*scenario.lua': validate_scenario_file,
-    '.*script.lua': lambda f: True,
+    '.*\.scmap': lambda f: True,
+    '.*_save\.lua': lambda f: True,
+    '.*_scenario\.lua': validate_scenario_file,
+    '.*_script\.lua': lambda f: True,
 }
 
 
@@ -190,4 +233,3 @@ def validate_map_zip_file(path):
     for file_pattern in required_files:
         if not required_files_found.get(file_pattern):
             raise KeyError("Missing a file of the form {}".format(file_pattern))
-
