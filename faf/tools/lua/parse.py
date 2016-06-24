@@ -9,7 +9,7 @@ try:
         :return:
         """
 
-        fa_functions_path = os.path.join(os.path.dirname(__file__), 'fa_functions.lua')
+        fa_functions_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'fa_functions.lua')
 
         lua = lupa.LuaRuntime()
         with open(fa_functions_path, 'r') as fp:
