@@ -2,7 +2,6 @@ import pkg_resources
 
 try:
     import lupa
-    import os
 
 
     def from_lua(lua_code):

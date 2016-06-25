@@ -100,7 +100,7 @@ class MapFile:
 
         self.add_markers(resized_image, mass_image, hydro_image, army_image)
 
-        resized_image.save(os.path.join(target_path.strpath, '{}.png'.format(self.mapname)))
+        resized_image.save(os.path.join(str(target_path), '{}.png'.format(self.mapname)))
 
     def add_markers(self, target_image, mass_image=None, hydro_image=None, army_image=None):
         markers = self.data['save']['Scenario']['MasterChain']['_MASTERCHAIN_']['Markers']
