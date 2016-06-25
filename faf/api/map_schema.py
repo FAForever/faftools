@@ -5,10 +5,11 @@ class MapSchema(Schema):
     """
     Represents various map metadata
     """
-    id = fields.Integer()
+    id = fields.Str()
     display_name = fields.String(required=True)
     description = fields.String(required=True)
     version = fields.String(required=True)
+    author = fields.String(required=True)
     filename = fields.String(required=True)
 
     map_type = fields.String()
