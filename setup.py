@@ -11,5 +11,6 @@ setup(
     author_email='sheeo@faforever.com',
     description='faftools project',
     requires=['lupa'],
-    install_requires=['docopt', 'pathlib', 'marshmallow', 'marshmallow_jsonapi']
+    install_requires=['docopt', 'pathlib', 'marshmallow', 'marshmallow_jsonapi'],
+    include_package_data=True
 )

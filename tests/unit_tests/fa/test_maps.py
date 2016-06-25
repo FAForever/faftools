@@ -2,16 +2,17 @@ from zipfile import ZipFile
 
 from pathlib import Path
 
+import pkg_resources
 import pytest
 from PIL import Image
 
 from faf.tools.fa.maps import generate_map_previews
 import os
 
-HYDRO_ICON = os.path.join(os.path.dirname(os.path.realpath(__file__)), '../../../faf/tools/fa/map_icons/hydro.png')
-MASS_ICON = os.path.join(os.path.dirname(os.path.realpath(__file__)), '../../../faf/tools/fa/map_icons/mass.png')
-ARMY_ICON = os.path.join(os.path.dirname(os.path.realpath(__file__)), '../../../faf/tools/fa/map_icons/army.png')
-MAP_ZIP = os.path.join(os.path.dirname(os.path.realpath(__file__)), '../../data/maps/theta_passage_5.v0001.zip')
+HYDRO_ICON = pkg_resources.resource_filename('static', 'map_markers/hydro.png')
+MASS_ICON = pkg_resources.resource_filename('static', 'map_markers/mass.png')
+ARMY_ICON = pkg_resources.resource_filename('static', 'map_markers/army.png')
+MAP_ZIP = pkg_resources.resource_filename('tests', 'data/maps/theta_passage_5.v0001.zip')
 
 
 @pytest.mark.parametrize("hydro_icon", [HYDRO_ICON, None])

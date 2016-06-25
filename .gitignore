@@ -20,3 +20,4 @@ Thumbs.db
 RELEASE-VERSION
 .coverage
 faftools.egg-info/
+*.iml
