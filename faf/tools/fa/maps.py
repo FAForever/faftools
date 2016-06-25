@@ -2,6 +2,8 @@ import re
 from pathlib import Path
 from zipfile import ZipFile, ZipExtFile
 import struct
+
+import pkg_resources
 from PIL import Image
 import os
 import math
@@ -151,10 +153,11 @@ def generate_map_previews(map_path, sizes_to_paths, mass_icon=None, hydro_icon=N
     :param army_icon: the path to the army marker image
     :return:
     """
-    icons_dir = os.path.dirname(os.path.realpath(__file__))
-    mass_icon = mass_icon if mass_icon else os.path.join(icons_dir, 'map_icons', 'mass.png')
-    hydro_icon = hydro_icon if hydro_icon else os.path.join(icons_dir, 'map_icons', 'hydro.png')
-    army_icon = army_icon if army_icon else os.path.join(icons_dir, 'map_icons', 'army.png')
+
+    markers_dir = pkg_resources.resource_filename('static', 'map_markers')
+    mass_icon = mass_icon if mass_icon else os.path.join(markers_dir, 'mass.png')
+    hydro_icon = hydro_icon if hydro_icon else os.path.join(markers_dir, 'hydro.png')
+    army_icon = army_icon if army_icon else os.path.join(markers_dir, 'army.png')
 
     file = MapFile(map_path)
     for size, path in sizes_to_paths.items():
