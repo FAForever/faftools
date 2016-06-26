@@ -59,6 +59,9 @@ class MapFile:
             for path in Path(self.map_path).iterdir():
                 filename = path.name
                 if filename.endswith('.scmap'):
+                    if os.path.getsize(str(path)) > MAX_MAP_FILE_SIZE:
+                        raise ValueError('Map is too big, max size is {} bytes'.format(MAX_MAP_FILE_SIZE))
+
                     with open(str(path), 'rb') as fp:
                         self._read_map(fp.read())
 
