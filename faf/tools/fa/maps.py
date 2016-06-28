@@ -20,7 +20,6 @@ RESOURCE_ICON_RATIO = 20.0 / 1024
 class MapFile:
     def __init__(self, map_path):
         self.map_path = map_path
-        self.mapname = os.path.splitext(os.path.basename(map_path))[0]
         self._data = None
         self._dds_image = None
 
@@ -61,6 +60,11 @@ class MapFile:
                 with path.open('r') as fp:
                     self._read_save_file(fp)
 
+            # TODO the name of the _scenario.lua file should be read from scenario info
+            elif filename.endswith('_scenario.lua'):
+                with path.open('r') as fp:
+                    self.data['scenario'] = read_scenario_file(fp)
+
     def load_mapdata_from_zip(self):
         validate_map_zip_file(self.map_path)
         with ZipFile(self.map_path) as zip:
@@ -80,6 +84,11 @@ class MapFile:
                 elif member.endswith('_save.lua'):
                     with zip.open(member, 'r') as fp:
                         self._read_save_file(fp)
+
+                # TODO the name of the _scenario.lua file should be read from scenario info
+                elif member.endswith('_scenario.lua'):
+                    with zip.open(member, 'r') as fp:
+                        self.data['scenario'] = read_scenario_file(fp)
 
     @property
     def data(self):
@@ -114,7 +123,9 @@ class MapFile:
 
         self.add_markers(resized_image, mass_image, hydro_image, army_image)
 
-        resized_image.save(os.path.join(str(target_path), '{}.png'.format(self.mapname)))
+        map_name = extract_map_name(self.data['scenario'])
+        version = self.data['scenario']['version']
+        resized_image.save(os.path.join(str(target_path), generate_preview_file_name(map_name, version)))
 
     def add_markers(self, target_image, mass_image=None, hydro_image=None, army_image=None):
         markers = self.data['save']['Scenario']['MasterChain']['_MASTERCHAIN_']['Markers']
@@ -155,6 +166,14 @@ class MapFile:
         top = Image.merge("RGB", (r, g, b))
         mask = Image.merge("L", (a,))
         target_image.paste(top, (offset_x, offset_y), mask)
+
+
+def generate_preview_file_name(map_name, version):
+    return '{}.v{:0>4}.png'.format(map_name.lower(), version)
+
+
+def generate_zip_file_name(map_name, version):
+    return '{}.v{:0>4}.zip'.format(map_name.lower(), version)
 
 
 def generate_map_previews(map_path, sizes_to_paths, mass_icon=None, hydro_icon=None, army_icon=None):
@@ -215,14 +234,10 @@ def parse_map_info(zip_file_or_folder):
     else:
         raise ValueError("Not a directory nor a file: " + zip_file_or_folder)
 
-    map_name_search = re.search('([^/]+)\.scmap', lua_data['ScenarioInfo']['map'].strip())
-    if not map_name_search:
-        raise ValueError("Map file is not specified in scenario file")
-
     map_info = {
         'version': lua_data['version'],
         'display_name': lua_data['ScenarioInfo']['name'].strip(),
-        'name': map_name_search.group(1),
+        'name': extract_map_name(lua_data),
         'description': lua_data['ScenarioInfo']['description'].strip(),
         'type': lua_data['ScenarioInfo']['type'].strip(),
         'size': (lua_data['ScenarioInfo']['size'][1], lua_data['ScenarioInfo']['size'][2]),
@@ -231,6 +246,14 @@ def parse_map_info(zip_file_or_folder):
     }
 
     return map_info
+
+
+def extract_map_name(lua_data):
+    map_name_search = re.search('([^/]+)\.scmap', lua_data['ScenarioInfo']['map'].strip())
+    if not map_name_search:
+        raise ValueError("Map file is not specified in scenario file")
+    map_name = map_name_search.group(1)
+    return map_name
 
 
 def read_scenario_file(file):
