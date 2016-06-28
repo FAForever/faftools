@@ -29,11 +29,11 @@ class MapFile:
         self._data['save'] = from_lua(lua_code)
 
     def _read_map(self, content):
-        dds_size = struct.unpack('i', content[30:34])[0]
         self._data['size'] = (
             struct.unpack('f', content[16:20])[0],
             struct.unpack('f', content[20:24])[0]
         )
+        dds_size = struct.unpack('i', content[30:34])[0]
         self._data['dds'] = content[34:35 + dds_size]
 
     def _load_mapdata(self):
@@ -44,6 +44,7 @@ class MapFile:
                 for member in zip.namelist():
                     filename = os.path.basename(member)
                     if filename.endswith('.scmap'):
+                        # TODO Memory-wise it would be better to unzip-parse-delete, but does it matter?
                         if zip.getinfo(member).file_size > MAX_MAP_FILE_SIZE:
                             raise ValueError('Map is too big, max size is {} bytes'.format(MAX_MAP_FILE_SIZE))
 
