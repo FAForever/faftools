@@ -14,7 +14,7 @@ import math
 from faf.tools.lua import from_lua
 
 # Ratio of resource icon size to map size
-RESOURCE_ICON_RATIO = 10.0 / 1024
+RESOURCE_ICON_RATIO = 20.0 / 1024
 
 
 class MapFile:
