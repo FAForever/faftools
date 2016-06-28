@@ -1,6 +1,8 @@
 from distutils.core import setup
 from setuptools import find_packages
 
+from pip.req import parse_requirements
+
 setup(
     name='faftools',
     version='0.1',
@@ -11,6 +13,7 @@ setup(
     author_email='sheeo@faforever.com',
     description='faftools project',
     requires=['lupa'],
-    install_requires=['docopt', 'pathlib', 'marshmallow', 'marshmallow_jsonapi'],
+    install_requires=[str(r.req) for r in parse_requirements('requirements.txt', session=False)
+                                 if r.req is not None],
     include_package_data=True
 )
