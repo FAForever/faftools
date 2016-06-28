@@ -45,37 +45,40 @@ class MapFile:
 
     def _load_mapdata(self):
         if self._is_zip:
-            validate_map_zip_file(self.map_path)
-
-            with ZipFile(self.map_path) as zip:
-                for member in zip.namelist():
-                    # TODO the name of the .scmap file should be read from scenario info
-                    if member.endswith('.scmap'):
-                        tmp_dir = tempfile.mkdtemp()
-                        try:
-                            # TODO use TemporaryDirectory() when no longer bound to Python 2.7
-                            zip.extract(member, tmp_dir)
-                            with open(os.path.join(tmp_dir, member), 'rb') as fp:
-                                self._read_map(fp)
-                        finally:
-                            shutil.rmtree(tmp_dir)
-
-                    # TODO the name of the _save.lua file should be read from scenario info
-                    elif member.endswith('_save.lua'):
-                        with zip.open(member, 'r') as fp:
-                            self._read_save_file(fp)
-
+            self.load_mapdata_from_zip()
         else:
-            validate_map_folder(self.map_path)
+            self.load_mapdata_from_folder()
 
-            for path in Path(self.map_path).iterdir():
-                filename = path.name
-                if filename.endswith('.scmap'):
-                    with path.open('rb') as fp:
-                        self._read_map(fp)
+    def load_mapdata_from_folder(self):
+        validate_map_folder(self.map_path)
+        for path in Path(self.map_path).iterdir():
+            filename = path.name
+            if filename.endswith('.scmap'):
+                with path.open('rb') as fp:
+                    self._read_map(fp)
 
-                elif filename.endswith('_save.lua'):
-                    with path.open('r') as fp:
+            elif filename.endswith('_save.lua'):
+                with path.open('r') as fp:
+                    self._read_save_file(fp)
+
+    def load_mapdata_from_zip(self):
+        validate_map_zip_file(self.map_path)
+        with ZipFile(self.map_path) as zip:
+            for member in zip.namelist():
+                # TODO the name of the .scmap file should be read from scenario info
+                if member.endswith('.scmap'):
+                    tmp_dir = tempfile.mkdtemp()
+                    try:
+                        # TODO use TemporaryDirectory() when no longer bound to Python 2.7
+                        zip.extract(member, tmp_dir)
+                        with open(os.path.join(tmp_dir, member), 'rb') as fp:
+                            self._read_map(fp)
+                    finally:
+                        shutil.rmtree(tmp_dir)
+
+                # TODO the name of the _save.lua file should be read from scenario info
+                elif member.endswith('_save.lua'):
+                    with zip.open(member, 'r') as fp:
                         self._read_save_file(fp)
 
     @property
@@ -180,7 +183,8 @@ def parse_map_info(zip_file_or_folder):
     Returns a broad description of the map, has the form:
     {
         'version': 1,
-        'name': 'Map name',
+        'display_name': 'Open Palms',
+        'name': 'SCMP_007',
         'description': 'Map description',
         'type': 'skirmish',
         'size': (512, 512),
@@ -211,9 +215,14 @@ def parse_map_info(zip_file_or_folder):
     else:
         raise ValueError("Not a directory nor a file: " + zip_file_or_folder)
 
+    map_name_search = re.search('([^/]+)\.scmap', lua_data['ScenarioInfo']['map'].strip())
+    if not map_name_search:
+        raise ValueError("Map file is not specified in scenario file")
+
     map_info = {
         'version': lua_data['version'],
-        'name': lua_data['ScenarioInfo']['name'].strip(),
+        'display_name': lua_data['ScenarioInfo']['name'].strip(),
+        'name': map_name_search.group(1),
         'description': lua_data['ScenarioInfo']['description'].strip(),
         'type': lua_data['ScenarioInfo']['type'].strip(),
         'size': (lua_data['ScenarioInfo']['size'][1], lua_data['ScenarioInfo']['size'][2]),

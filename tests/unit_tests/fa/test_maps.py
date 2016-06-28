@@ -71,7 +71,8 @@ def test_parse_map_info(file):
     map_info = parse_map_info(file)
 
     assert map_info['version'] == 3
-    assert map_info['name'] == 'Theta Passage 5'
+    assert map_info['display_name'] == 'Theta Passage 5'
+    assert map_info['name'] == 'theta_passage_5'
     assert map_info['description'] == 'Balanced Version of Theta Passage 2. Now the Reclaim is equal at the top/' \
                                       'bottom and at the left/right side at the middle. Also there are no longer ' \
                                       'any stones hidden inside a Hill.'
