@@ -76,6 +76,7 @@ def test_parse_map_info(file):
                                       'bottom and at the left/right side at the middle. Also there are no longer ' \
                                       'any stones hidden inside a Hill.'
     assert map_info['type'] == 'skirmish'
+    assert map_info['battle_type'] == 'FFA'
     assert map_info['size'] == (256, 256)
     assert map_info['max_players'] == 4
 

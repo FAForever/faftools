@@ -179,7 +179,13 @@ def parse_map_info(zip_file_or_folder):
     """
     Returns a broad description of the map, has the form:
     {
-        'name':
+        'version': 1,
+        'name': 'Map name',
+        'description': 'Map description',
+        'type': 'skirmish',
+        'size': (512, 512),
+        'battle_type': 'FFA',
+        'max_players': 4
     }
     """
     path = Path(zip_file_or_folder)
@@ -207,10 +213,11 @@ def parse_map_info(zip_file_or_folder):
 
     map_info = {
         'version': lua_data['version'],
-        'name': lua_data['ScenarioInfo']['name'],
-        'description': lua_data['ScenarioInfo']['description'],
-        'type': lua_data['ScenarioInfo']['type'],
+        'name': lua_data['ScenarioInfo']['name'].strip(),
+        'description': lua_data['ScenarioInfo']['description'].strip(),
+        'type': lua_data['ScenarioInfo']['type'].strip(),
         'size': (lua_data['ScenarioInfo']['size'][1], lua_data['ScenarioInfo']['size'][2]),
+        'battle_type': lua_data['ScenarioInfo']['Configurations']['standard']['teams'][1]['name'].strip(),
         'max_players': len(lua_data['ScenarioInfo']['Configurations']['standard']['teams'][1]['armies'])
     }
 
