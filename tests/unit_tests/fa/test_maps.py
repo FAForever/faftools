@@ -1,12 +1,13 @@
+import tempfile
 from zipfile import ZipFile
 
-from pathlib import Path
 
 import pkg_resources
 import pytest
+import shutil
 from PIL import Image
 
-from faf.tools.fa.maps import generate_map_previews
+from faf.tools.fa.maps import generate_map_previews, parse_map_info
 import os
 
 HYDRO_ICON = pkg_resources.resource_filename('static', 'map_markers/hydro.png')
@@ -63,3 +64,29 @@ def test_generate_map_previews_from_folder(tmpdir, mass_icon, hydro_icon, army_i
         assert im.size == (128, 128)
     with Image.open(large_files[0].strpath) as im:
         assert im.size == (1024, 1024)
+
+
+@pytest.mark.parametrize("file", [MAP_ZIP])
+def test_parse_map_info(file):
+    map_info = parse_map_info(file)
+
+    assert map_info['version'] == 3
+    assert map_info['name'] == 'Theta Passage 5'
+    assert map_info['description'] == 'Balanced Version of Theta Passage 2. Now the Reclaim is equal at the top/' \
+                                      'bottom and at the left/right side at the middle. Also there are no longer ' \
+                                      'any stones hidden inside a Hill.'
+    assert map_info['type'] == 'skirmish'
+    assert map_info['size'] == (256, 256)
+    assert map_info['max_players'] == 4
+
+
+def test_parse_map_info_folder():
+    tmp_dir = tempfile.mkdtemp()
+    try:
+        # TODO use TemporaryDirectory() when no longer bound to Python 2.7
+        with ZipFile(MAP_ZIP) as zip:
+            zip.extractall(tmp_dir)
+
+        test_parse_map_info(os.path.join(tmp_dir, 'theta_passage_5.v0001'))
+    finally:
+        shutil.rmtree(tmp_dir)

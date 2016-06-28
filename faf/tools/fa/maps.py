@@ -1,6 +1,9 @@
 import re
+import tempfile
+
+import shutil
 from pathlib import Path
-from zipfile import ZipFile, ZipExtFile
+from zipfile import ZipFile
 import struct
 
 import pkg_resources
@@ -11,8 +14,7 @@ import math
 from faf.tools.lua import from_lua
 
 # Ratio of resource icon size to map size
-RESOURCE_ICON_RATIO = 0.01953125
-MAX_MAP_FILE_SIZE = 256 * 1024 * 1024
+RESOURCE_ICON_RATIO = 10.0 / 1024
 
 
 class MapFile:
@@ -28,13 +30,18 @@ class MapFile:
         lua_code = file_pointer.read()
         self._data['save'] = from_lua(lua_code)
 
-    def _read_map(self, content):
+    def _read_map(self, fp):
+        fp.seek(16)
         self._data['size'] = (
-            struct.unpack('f', content[16:20])[0],
-            struct.unpack('f', content[20:24])[0]
+            struct.unpack('f', fp.read(4))[0],
+            struct.unpack('f', fp.read(4))[0]
         )
-        dds_size = struct.unpack('i', content[30:34])[0]
-        self._data['dds'] = content[34:35 + dds_size]
+        fp.seek(fp.tell() + 6)
+        dds_size = struct.unpack('i', fp.read(4))[0]
+        # Skip DDS header
+        fp.seek(fp.tell() + 128)
+
+        self._data['dds'] = fp.read(dds_size)
 
     def _load_mapdata(self):
         if self._is_zip:
@@ -42,15 +49,19 @@ class MapFile:
 
             with ZipFile(self.map_path) as zip:
                 for member in zip.namelist():
-                    filename = os.path.basename(member)
-                    if filename.endswith('.scmap'):
-                        # TODO Memory-wise it would be better to unzip-parse-delete, but does it matter?
-                        if zip.getinfo(member).file_size > MAX_MAP_FILE_SIZE:
-                            raise ValueError('Map is too big, max size is {} bytes'.format(MAX_MAP_FILE_SIZE))
+                    # TODO the name of the .scmap file should be read from scenario info
+                    if member.endswith('.scmap'):
+                        tmp_dir = tempfile.mkdtemp()
+                        try:
+                            # TODO use TemporaryDirectory() when no longer bound to Python 2.7
+                            zip.extract(member, tmp_dir)
+                            with open(os.path.join(tmp_dir, member), 'rb') as fp:
+                                self._read_map(fp)
+                        finally:
+                            shutil.rmtree(tmp_dir)
 
-                        self._read_map(zip.read(member))
-
-                    elif filename.endswith('_save.lua'):
+                    # TODO the name of the _save.lua file should be read from scenario info
+                    elif member.endswith('_save.lua'):
                         with zip.open(member, 'r') as fp:
                             self._read_save_file(fp)
 
@@ -60,14 +71,11 @@ class MapFile:
             for path in Path(self.map_path).iterdir():
                 filename = path.name
                 if filename.endswith('.scmap'):
-                    if os.path.getsize(str(path)) > MAX_MAP_FILE_SIZE:
-                        raise ValueError('Map is too big, max size is {} bytes'.format(MAX_MAP_FILE_SIZE))
-
-                    with open(str(path), 'rb') as fp:
-                        self._read_map(fp.read())
+                    with path.open('rb') as fp:
+                        self._read_map(fp)
 
                 elif filename.endswith('_save.lua'):
-                    with open(str(path), 'r') as fp:
+                    with path.open('r') as fp:
                         self._read_save_file(fp)
 
     @property
@@ -80,8 +88,7 @@ class MapFile:
 
     def _get_dds_image(self):
         if self._dds_image is None:
-            # dds header is 128 bytes
-            raw = self.data['dds'][128:]
+            raw = self.data['dds']
             dim = int(math.sqrt(len(raw)) / 2)
             # bgra -> rgba
             b, g, r, a = Image.frombuffer('RGBA', (dim, dim), raw, 'raw', 'RGBA', 0, 1).split()
@@ -168,28 +175,56 @@ def generate_map_previews(map_path, sizes_to_paths, mass_icon=None, hydro_icon=N
         file.generate_preview(size, path, mass_icon, hydro_icon, army_icon)
 
 
-# FIXME this has not been finished
 def parse_map_info(zip_file_or_folder):
     """
     Returns a broad description of the map, has the form:
     {
-        'map_name':
+        'name':
     }
     """
     path = Path(zip_file_or_folder)
 
+    lua_data = None
     if path.is_dir():
         validate_map_folder(path)
+
+        for file in path.glob('*_scenario.lua'):
+            with file.open() as fp:
+                lua_data = read_scenario_file(fp)
+            break
+
     elif path.is_file():
         validate_map_zip_file(str(path))
 
+        with ZipFile(zip_file_or_folder) as zip:
+            for member in zip.namelist():
+                if member.endswith('_scenario.lua'):
+                    with zip.open(member) as file:
+                        lua_data = read_scenario_file(file)
+                        break
+    else:
+        raise ValueError("Not a directory nor a file: " + zip_file_or_folder)
+
+    map_info = {
+        'version': lua_data['version'],
+        'name': lua_data['ScenarioInfo']['name'],
+        'description': lua_data['ScenarioInfo']['description'],
+        'type': lua_data['ScenarioInfo']['type'],
+        'size': (lua_data['ScenarioInfo']['size'][1], lua_data['ScenarioInfo']['size'][2]),
+        'max_players': len(lua_data['ScenarioInfo']['Configurations']['standard']['teams'][1]['armies'])
+    }
+
+    return map_info
+
+
+def read_scenario_file(file):
+    content = file.read()
+    content = content if isinstance(content, str) else content.decode('utf-8')
+    return from_lua(content)
+
 
 def validate_scenario_file(file):
-    if isinstance(file, ZipExtFile):
-        data = "".join(map(lambda l: l.decode(), file.readlines()))
-    else:
-        data = "".join(file.readlines())
-    info = from_lua(data)
+    info = read_scenario_file(file)
     if 'version' not in info:
         raise ValueError("Scenario file is missing version key: {}".format(file))
     if 'ScenarioInfo' not in info:
@@ -218,7 +253,8 @@ def validate_map_folder(folder):
     for file_pattern, validator in required_files.items():
         for fname in folder_files:
             if re.match(file_pattern, str(fname)):
-                validator(fname.open())
+                with open(str(fname)) as fp:
+                    validator(fp)
                 required_files_found[file_pattern] = True
 
     for file_pattern in required_files:
