@@ -125,7 +125,12 @@ class MapFile:
 
         map_name = extract_map_name(self.data['scenario'])
         version = self.data['scenario']['version']
-        resized_image.save(os.path.join(str(target_path), generate_preview_file_name(map_name, version)))
+
+        target_path_str = str(target_path)
+        if not os.path.exists(target_path_str):
+            os.makedirs(target_path_str)
+
+        resized_image.save(os.path.join(target_path_str, generate_preview_file_name(map_name, version)))
 
     def add_markers(self, target_image, mass_image=None, hydro_image=None, army_image=None):
         markers = self.data['save']['Scenario']['MasterChain']['_MASTERCHAIN_']['Markers']
