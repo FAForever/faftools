@@ -124,7 +124,7 @@ class MapFile:
         self.add_markers(resized_image, mass_image, hydro_image, army_image)
 
         map_name = extract_map_name(self.data['scenario'])
-        version = self.data['scenario']['version']
+        version = self.data['scenario']['ScenarioInfo']['map_version']
 
         target_path_str = str(target_path)
         if not os.path.exists(target_path_str):
