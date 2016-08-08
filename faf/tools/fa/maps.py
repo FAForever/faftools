@@ -174,11 +174,11 @@ class MapFile:
 
 
 def generate_preview_file_name(map_name, version):
-    return '{}.v{:0>4}.png'.format(map_name.lower(), version)
+    return '{}.v{:0>4}.png'.format(map_name.lower(), version).replace(' ', '_')
 
 
 def generate_zip_file_name(map_name, version):
-    return '{}.v{:0>4}.zip'.format(map_name.lower(), version)
+    return '{}.v{:0>4}.zip'.format(map_name.lower(), version).replace(' ', '_')
 
 
 def generate_map_previews(map_path, sizes_to_paths, mass_icon=None, hydro_icon=None, army_icon=None):
