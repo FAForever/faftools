@@ -11,6 +11,8 @@ from PIL import Image
 import os
 import math
 
+from werkzeug.utils import secure_filename
+
 from faf.tools.lua import from_lua
 
 # Ratio of resource icon size to map size
@@ -174,11 +176,11 @@ class MapFile:
 
 
 def generate_preview_file_name(map_name, version):
-    return '{}.v{:0>4}.png'.format(map_name.lower(), version).replace(' ', '_')
+    return secure_filename('{}.v{:0>4}.png'.format(map_name.lower(), version))
 
 
 def generate_zip_file_name(map_name, version):
-    return '{}.v{:0>4}.zip'.format(map_name.lower(), version).replace(' ', '_')
+    return secure_filename('{}.v{:0>4}.zip'.format(map_name.lower(), version))
 
 
 def generate_map_previews(map_path, sizes_to_paths, mass_icon=None, hydro_icon=None, army_icon=None):
