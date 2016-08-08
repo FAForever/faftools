@@ -240,7 +240,7 @@ def parse_map_info(zip_file_or_folder):
         raise ValueError("Not a directory nor a file: " + zip_file_or_folder)
 
     map_info = {
-        'version': lua_data['version'],
+        'version': lua_data['ScenarioInfo']['map_version'],
         'display_name': lua_data['ScenarioInfo']['name'].strip(),
         'name': extract_map_name(lua_data),
         'description': lua_data['ScenarioInfo']['description'].strip(),
