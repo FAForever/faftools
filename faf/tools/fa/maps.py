@@ -272,7 +272,9 @@ def validate_scenario_file(file):
     if 'version' not in info:
         raise ValueError("Scenario file is missing version key: {}".format(file))
     if 'ScenarioInfo' not in info:
-        raise ValueError("ScenarioInfo file is missing ScenarioInfo key: {}".format(file))
+        raise ValueError("Scenario file does not contain ScenarioInfo: {}".format(file))
+    if 'map_version' not in info['ScenarioInfo']:
+        raise ValueError("Scenario file does not contain ScenarioInfo/map_version: {}".format(file))
     for key in ['name', 'description', 'type', 'size', 'map', 'save', 'script']:
         if key not in info['ScenarioInfo']:
             raise ValueError("ScenarioInfo table missing key {}".format(key))
