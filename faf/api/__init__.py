@@ -11,6 +11,7 @@ from .player_schema import PlayerSchema, RatingSchema
 from .mod_schema import ModSchema
 from .clan_schema import ClanSchema
 from .map_schema import MapSchema
+from .review_schema import ReviewSchema
 from .bugreport_schema import BugReportSchema, BugReportTargetSchema
 
 # Increment me according to semver rules for compatibility
