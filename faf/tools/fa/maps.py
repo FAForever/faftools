@@ -143,7 +143,7 @@ class MapFile:
                 elif hydro_image and marker_data['type'] == 'Hydrocarbon':
                     self._add_marker(hydro_image, marker_data, target_image)
 
-            elif army_image and marker_data['type'] == 'Blank Marker':
+            elif army_image and marker_data['type'] == 'Blank Marker' and marker_name.startswith("ARMY_"):
                 self._add_marker(army_image, marker_data, target_image)
 
     def _add_marker(self, marker_image, marker_data, target_image):
