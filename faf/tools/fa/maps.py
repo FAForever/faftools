@@ -20,10 +20,11 @@ RESOURCE_ICON_RATIO = 20.0 / 1024
 
 
 class MapFile:
-    def __init__(self, map_path):
+    def __init__(self, map_path, validate=True):
         self.map_path = map_path
         self._data = None
         self._dds_image = None
+        self._validate = validate
 
         self._is_zip = map_path.endswith('.zip')
 
@@ -51,7 +52,9 @@ class MapFile:
             self.load_mapdata_from_folder()
 
     def load_mapdata_from_folder(self):
-        validate_map_folder(self.map_path)
+        if self._validate:
+            validate_map_folder(self.map_path, self._validate)
+
         for path in Path(self.map_path).iterdir():
             filename = path.name
             if filename.endswith('.scmap'):
@@ -68,7 +71,9 @@ class MapFile:
                     self.data['scenario'] = read_scenario_file(fp)
 
     def load_mapdata_from_zip(self):
-        validate_map_zip_file(self.map_path)
+        if self._validate:
+            validate_map_zip_file(self.map_path, self._validate)
+
         with ZipFile(self.map_path) as zip:
             for member in zip.namelist():
                 # TODO the name of the .scmap file should be read from scenario info
@@ -204,7 +209,7 @@ def generate_map_previews(map_path, sizes_to_paths, mass_icon=None, hydro_icon=N
         file.generate_preview(size, path, mass_icon, hydro_icon, army_icon)
 
 
-def parse_map_info(zip_file_or_folder):
+def parse_map_info(zip_file_or_folder, validate=True):
     """
     Returns a broad description of the map, has the form:
     {
@@ -217,12 +222,15 @@ def parse_map_info(zip_file_or_folder):
         'battle_type': 'FFA',
         'max_players': 4
     }
+
+    :param zip_file_or_folder: the zip file or folder to parse
+    :param validate: whether the file should be validated (exceptions will be thrown for invalid/missing values)
     """
     path = Path(zip_file_or_folder)
 
     lua_data = None
     if path.is_dir():
-        validate_map_folder(path)
+        validate_map_folder(path, validate)
 
         for file in path.glob('*_scenario.lua'):
             with file.open() as fp:
@@ -230,7 +238,7 @@ def parse_map_info(zip_file_or_folder):
             break
 
     elif path.is_file():
-        validate_map_zip_file(str(path))
+        validate_map_zip_file(str(path), validate)
 
         with ZipFile(zip_file_or_folder) as zip:
             for member in zip.namelist():
@@ -241,18 +249,23 @@ def parse_map_info(zip_file_or_folder):
     else:
         raise ValueError("Not a directory nor a file: " + zip_file_or_folder)
 
+    size = lua_data['ScenarioInfo'].get('size')
     map_info = {
-        'version': lua_data['ScenarioInfo']['map_version'],
-        'display_name': lua_data['ScenarioInfo']['name'].strip(),
+        'version': lua_data['ScenarioInfo'].get('map_version'),
+        'display_name': _strip(lua_data['ScenarioInfo'].get('name')),
         'name': extract_map_name(lua_data),
-        'description': lua_data['ScenarioInfo']['description'].strip(),
-        'type': lua_data['ScenarioInfo']['type'].strip(),
-        'size': (lua_data['ScenarioInfo']['size'][1], lua_data['ScenarioInfo']['size'][2]),
+        'description': _strip(lua_data['ScenarioInfo'].get('description')),
+        'type': _strip(lua_data['ScenarioInfo'].get('type')),
+        'size': (size[1], size[2]) if size else None,
         'battle_type': lua_data['ScenarioInfo']['Configurations']['standard']['teams'][1]['name'].strip(),
         'max_players': len(lua_data['ScenarioInfo']['Configurations']['standard']['teams'][1]['armies'])
     }
 
     return map_info
+
+
+def _strip(string):
+    return string.strip() if string else None
 
 
 def extract_map_name(lua_data):
@@ -275,9 +288,7 @@ def validate_scenario_file(file):
         raise ValueError("Scenario file is missing version key: {}".format(file))
     if 'ScenarioInfo' not in info:
         raise ValueError("Scenario file does not contain ScenarioInfo: {}".format(file))
-    if 'map_version' not in info['ScenarioInfo']:
-        raise ValueError("Scenario file does not contain ScenarioInfo/map_version: {}".format(file))
-    for key in ['name', 'description', 'type', 'size', 'map', 'save', 'script']:
+    for key in ['name', 'description', 'type', 'size', 'map', 'save', 'script', 'map_version']:
         if key not in info['ScenarioInfo']:
             raise ValueError("ScenarioInfo table missing key {}".format(key))
 
@@ -290,7 +301,7 @@ required_files = {
 }
 
 
-def validate_map_folder(folder):
+def validate_map_folder(folder, validate=True):
     path = Path(folder)
 
     if not path.is_dir():
@@ -301,8 +312,9 @@ def validate_map_folder(folder):
     for file_pattern, validator in required_files.items():
         for fname in folder_files:
             if re.match(file_pattern, str(fname)):
-                with open(str(fname)) as fp:
-                    validator(fp)
+                if validate:
+                    with open(str(fname)) as fp:
+                        validator(fp)
                 required_files_found[file_pattern] = True
 
     for file_pattern in required_files:
@@ -310,7 +322,7 @@ def validate_map_folder(folder):
             raise KeyError("Missing a file of the form {}".format(file_pattern))
 
 
-def validate_map_zip_file(path):
+def validate_map_zip_file(path, validate=True):
     required_files_found = {}
     with ZipFile(path) as zip:
         if zip.testzip():
@@ -318,7 +330,8 @@ def validate_map_zip_file(path):
         for file in zip.infolist():
             for file_pattern, validator in required_files.items():
                 if re.match(file_pattern, str(file.filename)):
-                    validator(zip.open(file))
+                    if validate:
+                        validator(zip.open(file))
                     required_files_found[file_pattern] = True
 
     for file_pattern in required_files:
