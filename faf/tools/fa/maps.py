@@ -181,11 +181,15 @@ class MapFile:
 
 
 def generate_preview_file_name(map_name, version):
-    return secure_filename('{}.v{:0>4}.png'.format(map_name.lower(), version))
+    return generate_folder_name(map_name, version) + ".png"
 
 
 def generate_zip_file_name(map_name, version):
-    return secure_filename('{}.v{:0>4}.zip'.format(map_name.lower(), version))
+    return generate_folder_name(map_name, version) + ".zip"
+
+
+def generate_folder_name(map_name, version):
+    return secure_filename('{}.v{:0>4}'.format(map_name.lower(), version))
 
 
 def generate_map_previews(map_path, sizes_to_paths, mass_icon=None, hydro_icon=None, army_icon=None):
@@ -213,14 +217,15 @@ def parse_map_info(zip_file_or_folder, validate=True):
     """
     Returns a broad description of the map, has the form:
     {
-        'version': 1,
-        'display_name': 'Open Palms',
-        'name': 'SCMP_007',
-        'description': 'Map description',
+        'version': 6,
+        'display_name': 'Core Prime Canyon Fort 12P',
+        'name': 'coreprimecanyonfort12P',
+        'folder_name': 'coreprimecanyonfort12P.v0006',
+        'description': '<LOC coreprimecanyonfort12P.v0006_Description>40x40 12 Player Map',
         'type': 'skirmish',
-        'size': (512, 512),
+        'size': (2048, 2048),
         'battle_type': 'FFA',
-        'max_players': 4
+        'max_players': 12
     }
 
     :param zip_file_or_folder: the zip file or folder to parse
@@ -254,6 +259,7 @@ def parse_map_info(zip_file_or_folder, validate=True):
         'version': lua_data['ScenarioInfo'].get('map_version'),
         'display_name': _strip(lua_data['ScenarioInfo'].get('name')),
         'name': extract_map_name(lua_data),
+        'folder_name': extract_folder_name(lua_data),
         'description': _strip(lua_data['ScenarioInfo'].get('description')),
         'type': _strip(lua_data['ScenarioInfo'].get('type')),
         'size': (size[1], size[2]) if size else None,
@@ -274,6 +280,10 @@ def extract_map_name(lua_data):
         raise ValueError("Map file is not specified in scenario file")
     map_name = map_name_search.group(1)
     return map_name
+
+
+def extract_folder_name(lua_data):
+    return lua_data['ScenarioInfo']['map'].split('/')[2]
 
 
 def read_scenario_file(file):
