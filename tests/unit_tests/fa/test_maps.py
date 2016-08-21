@@ -67,13 +67,13 @@ def test_generate_map_previews_from_folder(tmpdir, mass_icon, hydro_icon, army_i
         assert im.size == (1024, 1024)
 
 
-@pytest.mark.parametrize("file", [MAP_ZIP])
+@pytest.mark.parametrize("file", [MAP_ZIP, MAP_FOLDER])
 def test_parse_map_info(file):
     map_info = parse_map_info(file)
 
     assert map_info['version'] == 1
     assert map_info['display_name'] == 'Theta Passage 5'
-    assert map_info['name'] == 'theta_passage_5'
+    assert map_info['name'] == 'theta passage 5'
     assert map_info['description'] == 'Balanced Version of Theta Passage 2. Now the Reclaim is equal at the top/' \
                                       'bottom and at the left/right side at the middle. Also there are no longer ' \
                                       'any stones hidden inside a Hill.'
@@ -81,18 +81,6 @@ def test_parse_map_info(file):
     assert map_info['battle_type'] == 'FFA'
     assert map_info['size'] == (256, 256)
     assert map_info['max_players'] == 4
-
-
-def test_parse_map_info_folder():
-    tmp_dir = tempfile.mkdtemp()
-    try:
-        # TODO use TemporaryDirectory() when no longer bound to Python 2.7
-        with ZipFile(MAP_ZIP) as zip:
-            zip.extractall(tmp_dir)
-
-        test_parse_map_info(os.path.join(tmp_dir, 'theta_passage_5.v0001'))
-    finally:
-        shutil.rmtree(tmp_dir)
 
 
 @pytest.mark.parametrize("file", [MAP_ZIP, MAP_FOLDER])
