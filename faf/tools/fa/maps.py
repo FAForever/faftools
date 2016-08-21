@@ -256,7 +256,7 @@ def generate_zip(zip_file_or_folder, target_dir):
                         line = line.replace('/maps/' + map_info['folder_name'], '/maps/' + new_folder_name)
                         new_file.write(line)
 
-        shutil.make_archive(target_dir + "/" + new_folder_name, 'zip', root_dir=tmp_dir, base_dir=tmp_dir)
+        return shutil.make_archive(target_dir + "/" + new_folder_name, 'zip', root_dir=tmp_dir, base_dir=tmp_dir)
     finally:
         shutil.rmtree(tmp_dir)
 
