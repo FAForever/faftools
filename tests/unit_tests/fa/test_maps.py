@@ -7,13 +7,14 @@ import pytest
 import shutil
 from PIL import Image
 
-from faf.tools.fa.maps import generate_map_previews, parse_map_info
+from faf.tools.fa.maps import generate_map_previews, parse_map_info, generate_zip
 import os
 
 HYDRO_ICON = pkg_resources.resource_filename('static', 'map_markers/hydro.png')
 MASS_ICON = pkg_resources.resource_filename('static', 'map_markers/mass.png')
 ARMY_ICON = pkg_resources.resource_filename('static', 'map_markers/army.png')
-MAP_ZIP = pkg_resources.resource_filename('tests', 'data/maps/theta_passage_5.v0001.zip')
+MAP_ZIP = pkg_resources.resource_filename('tests', 'data/maps/random_map.zip')
+MAP_FOLDER = pkg_resources.resource_filename('tests', 'data/maps/theta passage 5.v0001')
 
 
 @pytest.mark.parametrize("hydro_icon", [HYDRO_ICON, None])
@@ -90,5 +91,17 @@ def test_parse_map_info_folder():
             zip.extractall(tmp_dir)
 
         test_parse_map_info(os.path.join(tmp_dir, 'theta_passage_5.v0001'))
+    finally:
+        shutil.rmtree(tmp_dir)
+
+
+@pytest.mark.parametrize("file", [MAP_ZIP, MAP_FOLDER])
+def test_generate_zip(file):
+    # TODO use TemporaryDirectory() when no longer bound to Python 2.7
+    tmp_dir = tempfile.mkdtemp()
+    try:
+        generate_zip(file, tmp_dir)
+
+        assert os.path.isfile(tmp_dir + '/theta_passage_5.v0001.zip')
     finally:
         shutil.rmtree(tmp_dir)

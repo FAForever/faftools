@@ -180,16 +180,16 @@ class MapFile:
         target_image.paste(top, (offset_x, offset_y), mask)
 
 
-def generate_preview_file_name(map_name, version):
-    return generate_folder_name(map_name, version) + ".png"
+def generate_preview_file_name(display_name, version):
+    return generate_folder_name(display_name, version) + ".png"
 
 
-def generate_zip_file_name(map_name, version):
-    return generate_folder_name(map_name, version) + ".zip"
+def generate_zip_file_name(display_name, version):
+    return generate_folder_name(display_name, version) + ".zip"
 
 
-def generate_folder_name(map_name, version):
-    return secure_filename('{}.v{:0>4}'.format(map_name.lower(), version))
+def generate_folder_name(display_name, version):
+    return secure_filename('{}.v{:0>4}'.format(display_name.lower(), version))
 
 
 def generate_map_previews(map_path, sizes_to_paths, mass_icon=None, hydro_icon=None, army_icon=None):
@@ -211,6 +211,54 @@ def generate_map_previews(map_path, sizes_to_paths, mass_icon=None, hydro_icon=N
     file = MapFile(map_path)
     for size, path in sizes_to_paths.items():
         file.generate_preview(size, path, mass_icon, hydro_icon, army_icon)
+
+
+def generate_zip(zip_file_or_folder, target_dir):
+    """
+    Generates a FAF conform map ZIP file. This includes:
+
+        1. Generate a folder name based on the map's display name and version
+        2. Put all files into that folder
+        3. Update the folder names in the *_scenario.lua
+        4. Put everything into a ZIP file
+
+    :param zip_file_or_folder: the zip file or folder to parse
+    :return: the path to the generated zip file
+    """
+
+    path = Path(zip_file_or_folder)
+
+    # TODO use TemporaryDirectory() when no longer bound to Python 2.7
+    tmp_dir = tempfile.mkdtemp()
+    try:
+        if path.is_file():
+            validate_map_zip_file(str(path), False)
+            with ZipFile(str(path)) as zip:
+                zip.extractall(tmp_dir)
+        elif path.is_dir():
+            shutil.copytree(zip_file_or_folder, os.path.join(tmp_dir, os.path.basename(zip_file_or_folder)))
+        else:
+            raise ValueError("Not a directory nor a file: " + zip_file_or_folder)
+
+        old_folder_name = os.listdir(tmp_dir)[0]
+        map_folder = os.path.join(tmp_dir, old_folder_name)
+
+        map_info = parse_map_info(map_folder, validate=False)
+        new_folder_name = generate_folder_name(map_info['display_name'], map_info['version'])
+
+        for file in Path(map_folder).glob('*_scenario.lua'):
+            stash_file_path = Path(file.parent, 'stash_scenario.lua.tmp')
+            shutil.move(str(file), str(stash_file_path))
+
+            with stash_file_path.open('r') as stash_file:
+                with file.open('w') as new_file:
+                    for line in stash_file:
+                        line = line.replace('/maps/' + map_info['folder_name'], '/maps/' + new_folder_name)
+                        new_file.write(line)
+
+        shutil.make_archive(target_dir + "/" + new_folder_name, 'zip', root_dir=tmp_dir, base_dir=tmp_dir)
+    finally:
+        shutil.rmtree(tmp_dir)
 
 
 def parse_map_info(zip_file_or_folder, validate=True):
