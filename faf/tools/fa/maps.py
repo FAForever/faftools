@@ -2,6 +2,8 @@ import re
 import tempfile
 
 import shutil
+import zipfile
+
 from pathlib import Path
 from zipfile import ZipFile
 import struct
@@ -240,23 +242,33 @@ def generate_zip(zip_file_or_folder, target_dir):
         else:
             raise ValueError("Not a directory nor a file: " + zip_file_or_folder)
 
-        old_folder_name = os.listdir(tmp_dir)[0]
-        map_folder = os.path.join(tmp_dir, old_folder_name)
+        map_folder = os.path.join(tmp_dir, os.listdir(tmp_dir)[0])
 
         map_info = parse_map_info(map_folder, validate=False)
         new_folder_name = generate_folder_name(map_info['display_name'], map_info['version'])
 
         for file in Path(map_folder).glob('*_scenario.lua'):
-            stash_file_path = Path(file.parent, 'stash_scenario.lua.tmp')
-            shutil.move(str(file), str(stash_file_path))
+            stash_file_path = os.path.join(str(file.parent), 'stash_scenario.lua.tmp')
+            shutil.move(str(file), stash_file_path)
 
-            with stash_file_path.open('r') as stash_file:
+            with open(stash_file_path, 'r') as stash_file:
                 with file.open('w') as new_file:
                     for line in stash_file:
                         line = line.replace('/maps/' + map_info['folder_name'], '/maps/' + new_folder_name)
                         new_file.write(line)
 
-        return shutil.make_archive(target_dir + "/" + new_folder_name, 'zip', root_dir=tmp_dir, base_dir=tmp_dir)
+            os.remove(stash_file_path)
+
+        shutil.move(map_folder, os.path.join(tmp_dir, new_folder_name))
+
+        zip_file = "{}/{}.zip".format(target_dir, new_folder_name)
+        with ZipFile(zip_file, 'w', zipfile.ZIP_DEFLATED) as zip:
+            for root, dirs, files in os.walk(tmp_dir):
+                for file in files:
+                    filename = os.path.join(root, file)
+                    zip.write(filename, filename.replace(tmp_dir, ''))
+
+        return zip_file
     finally:
         shutil.rmtree(tmp_dir)
 

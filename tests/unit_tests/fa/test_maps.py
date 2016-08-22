@@ -86,10 +86,14 @@ def test_parse_map_info(file):
 @pytest.mark.parametrize("file", [MAP_ZIP, MAP_FOLDER])
 def test_generate_zip(file):
     # TODO use TemporaryDirectory() when no longer bound to Python 2.7
-    tmp_dir = tempfile.mkdtemp()
+    target_dir = tempfile.mkdtemp()
     try:
-        generate_zip(file, tmp_dir)
+        zip_file = generate_zip(file, target_dir)
 
-        assert os.path.isfile(tmp_dir + '/theta_passage_5.v0001.zip')
+        assert os.path.isfile(target_dir + '/theta_passage_5.v0001.zip')
+
+        with ZipFile(zip_file) as zip:
+            for member in zip.namelist():
+                assert member.startswith('theta_passage_5.v0001/')
     finally:
-        shutil.rmtree(tmp_dir)
+        shutil.rmtree(target_dir)
