@@ -191,7 +191,11 @@ def generate_zip_file_name(display_name, version):
 
 
 def generate_folder_name(display_name, version):
-    return secure_filename('{}.v{:0>4}'.format(display_name.lower(), version))
+    return '{}.v{:0>4}'.format(generate_file_name(display_name), version)
+
+
+def generate_file_name(display_name):
+    return secure_filename('{}'.format(display_name.lower()))
 
 
 def generate_map_previews(map_path, sizes_to_paths, mass_icon=None, hydro_icon=None, army_icon=None):
@@ -243,24 +247,34 @@ def generate_zip(zip_file_or_folder, target_dir):
             raise ValueError("Not a directory nor a file: " + zip_file_or_folder)
 
         map_folder = os.path.join(tmp_dir, os.listdir(tmp_dir)[0])
-
         map_info = parse_map_info(map_folder, validate=False)
+        new_file_base_name = generate_file_name(map_info['display_name'])
         new_folder_name = generate_folder_name(map_info['display_name'], map_info['version'])
 
+        # Rename all files that contain the map name
+        for file in Path(map_folder).glob(map_info['name'] + '*'):
+            new_file_name = str(file.name).replace(map_info['name'], new_file_base_name)
+            shutil.move(str(file), os.path.join(str(file.parent), new_file_name))
+
+        # Replace all references in *_scenario.lua
         for file in Path(map_folder).glob('*_scenario.lua'):
             stash_file_path = os.path.join(str(file.parent), 'stash_scenario.lua.tmp')
             shutil.move(str(file), stash_file_path)
 
             with open(stash_file_path, 'r') as stash_file:
-                with file.open('w') as new_file:
+                with file.open('wb') as new_file:
                     for line in stash_file:
-                        line = line.replace('/maps/' + map_info['folder_name'], '/maps/' + new_folder_name)
-                        new_file.write(line)
+                        line = line.replace(
+                            '/maps/{}/{}'.format(map_info['folder_name'], map_info['name']),
+                            '/maps/{}/{}'.format(new_folder_name, new_file_base_name))
+                        new_file.write(line.encode('latin1'))
 
             os.remove(stash_file_path)
 
+        # Rename the folder
         shutil.move(map_folder, os.path.join(tmp_dir, new_folder_name))
 
+        # Zip the folder
         zip_file = "{}/{}.zip".format(target_dir, new_folder_name)
         with ZipFile(zip_file, 'w', zipfile.ZIP_DEFLATED) as zip:
             for root, dirs, files in os.walk(tmp_dir):
