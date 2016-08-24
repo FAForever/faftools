@@ -95,5 +95,14 @@ def test_generate_zip(file):
         with ZipFile(zip_file) as zip:
             for member in zip.namelist():
                 assert member.startswith('theta_passage_5.v0001/')
+
+                if member.endswith('.lua'):
+                    assert member.startswith('theta_passage_5.v0001/theta_passage_5')
+
+                if member.endswith('_scenario.lua'):
+                    with zip.open(member, 'r') as file:
+                        for line in file:
+                            if b'maps/' in line:
+                                assert b'/maps/theta_passage_5.v0001/theta_passage_5' in line
     finally:
         shutil.rmtree(target_dir)
