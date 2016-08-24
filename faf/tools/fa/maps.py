@@ -265,7 +265,7 @@ def generate_zip(zip_file_or_folder, target_dir):
                 with file.open('wb') as new_file:
                     for line in stash_file:
                         line = line.replace(
-                            '/maps/{}/{}'.format(map_info['folder_name'], map_info['name']),
+                            '/maps/{}/{}'.format(map_info['folder_name'].replace("'", "\\'"), map_info['name'].replace("'", "\\'")),
                             '/maps/{}/{}'.format(new_folder_name, new_file_base_name))
                         new_file.write(line.encode('latin1'))
 
