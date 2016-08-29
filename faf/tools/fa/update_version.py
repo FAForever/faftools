@@ -15,12 +15,12 @@ if __name__ == '__main__':
     arguments = docopt(__doc__)
     file, version = arguments.get('--file'), arguments.get('<version>')
     shutil.copyfile(file, "ForgedAlliance.%s.exe" % version)
-    exe = open("ForgedAlliance.exe", 'rb').read()
+
     addr = [0xd3d3f, 0x47612c, 0x476665]
     f = open("ForgedAlliance.%s.exe" % version, 'rb+')
 
     for a in addr:
-        v = struct.pack("<L", version)
+        v = struct.pack("<L", int(version))
         f.seek(a+1, 0)
         f.write(v)
     f.close()
