@@ -12,7 +12,7 @@ class CoopMissionSchema(Schema):
     name = fields.String(required=True)
     description = fields.String(required=True)
     version = fields.Integer(required=True)
-    filename = fields.String(required=True)
+    folder_name = fields.String(required=True)
 
     download_url = fields.Url(dump_only=True)
     thumbnail_url_small = fields.Url(dump_only=True)
