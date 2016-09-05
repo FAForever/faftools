@@ -1,9 +1,9 @@
 from marshmallow_jsonapi import Schema, fields
 
 
-class CoopMapSchema(Schema):
+class CoopMissionSchema(Schema):
     """
-    Schema for 'coop_map' type API objects.
+    Schema for 'coop_mission' type API objects.
     """
 
     id = fields.Str()
@@ -19,4 +19,4 @@ class CoopMapSchema(Schema):
     thumbnail_url_large = fields.Url(dump_only=True)
 
     class Meta:
-        type_ = "coop_map"
+        type_ = "coop_mission"
