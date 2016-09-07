@@ -14,6 +14,7 @@ class ClanSchema(Schema):
     clan_tag = fields.String()
     clan_leader_id = fields.Integer()
     clan_founder_id = fields.Integer()
+    clan_tag_color = fields.String()
     clan_desc = fields.String()
     create_date = fields.DateTime()
     leader_name = fields.String()
