@@ -336,7 +336,7 @@ def parse_map_info(zip_file_or_folder, validate=True):
                         lua_data = read_scenario_file(file)
                         break
     else:
-        raise ValueError("Not a directory nor a file: " + zip_file_or_folder)
+        raise ValueError("Not a directory nor a file: " + str(zip_file_or_folder))
 
     size = lua_data['ScenarioInfo'].get('size')
     map_info = {
