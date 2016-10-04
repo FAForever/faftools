@@ -225,7 +225,7 @@ def generate_zip(zip_file_or_folder, target_dir):
 
         1. Generate a folder name based on the map's display name and version
         2. Put all files into that folder
-        3. Update the folder names in the *_scenario.lua
+        3. Update the folder names in *.lua files
         4. Put everything into a ZIP file
 
     :param zip_file_or_folder: the zip file or folder to parse
@@ -251,22 +251,32 @@ def generate_zip(zip_file_or_folder, target_dir):
         new_file_base_name = generate_file_name(map_info['display_name'])
         new_folder_name = generate_folder_name(map_info['display_name'], map_info['version'])
 
+        # Safety net for the risky replacement below
+        if map_info['name'] in ['save', 'script', 'map', 'tables']:
+            raise ValueError("Map must not be named: " + map_info['name'])
+
         # Rename all files that contain the map name
         for file in Path(map_folder).glob(map_info['name'] + '*'):
             new_file_name = str(file.name).replace(map_info['name'], new_file_base_name)
             shutil.move(str(file), os.path.join(str(file.parent), new_file_name))
 
-        # Replace all references in *_scenario.lua
-        for file in Path(map_folder).glob('*_scenario.lua'):
-            stash_file_path = os.path.join(str(file.parent), 'stash_scenario.lua.tmp')
+        # Replace all references in *.lua files
+        for file in Path(map_folder).glob('*.lua'):
+            stash_file_path = os.path.join(str(file.parent), 'stash.lua.tmp')
             shutil.move(str(file), stash_file_path)
 
             with open(stash_file_path, 'r') as stash_file:
                 with file.open('wb') as new_file:
                     for line in stash_file:
                         line = line.replace(
-                            '/maps/{}/{}'.format(map_info['folder_name'], map_info['name']),
-                            '/maps/{}/{}'.format(new_folder_name, new_file_base_name))
+                            '/maps/{}/'.format(map_info['folder_name']),
+                            '/maps/{}/'.format(new_folder_name)
+                        )
+                        # This is a bit risky (possible false positives), that's why there is a safety net above
+                        line = line.replace(
+                            '/{}'.format(map_info['name']),
+                            '/{}'.format(new_file_base_name)
+                        )
                         new_file.write(line.encode('latin1'))
 
             os.remove(stash_file_path)
