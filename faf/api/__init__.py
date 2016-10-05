@@ -1,10 +1,10 @@
 """
 Contains marshmallow schemas for the JSON+API compatible part of the FAF api
 """
-from .ranked1v1_stats_schema import Ranked1v1StatsSchema
+from .leaderboards_stats_schema import LeaderboardsStatsSchema
 from .achievement_schema import AchievementSchema
 from .event_schema import EventSchema
-from .ranked1v1_schema import Ranked1v1Schema
+from .leaderboards_schema import LeaderboardsSchema
 from .player_achievement_schema import PlayerAchievementSchema
 from .player_event_schema import PlayerEventSchema
 from .player_schema import PlayerSchema, RatingSchema
@@ -27,8 +27,8 @@ API_TYPES = {
     'player_event': PlayerEventSchema,
     'bugreport': BugReportSchema,
     'bugreport_target': BugReportTargetSchema,
-    'ranked1v1': Ranked1v1Schema,
-    'ranked1v1_stats': Ranked1v1StatsSchema
+    'leaderboards': LeaderboardsSchema,
+    'leaderboards_stats': LeaderboardsStatsSchema
 }
 
 FAF_API_URL = 'http://api.dev.faforever.com'

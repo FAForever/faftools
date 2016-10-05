@@ -1,10 +1,10 @@
 from marshmallow_jsonapi import Schema, fields
 
 
-class Ranked1v1StatsSchema(Schema):
+class LeaderboardsStatsSchema(Schema):
 
     id = fields.String()
     rating_distribution = fields.Dict()
 
     class Meta:
-        type_ = 'ranked1v1_stats'
+        type_ = 'leaderboards_stats'
