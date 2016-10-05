@@ -13,7 +13,6 @@ class LeaderboardsSchema(Schema):
     won_games = fields.Integer()
     lost_games = fields.Integer()
     winning_percentage = fields.Float()
-    is_active = fields.Boolean()
     rating = fields.Integer()
     ranking = fields.Integer()
 
