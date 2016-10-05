@@ -8,7 +8,7 @@ class MapSchema(Schema):
     id = fields.Str()
     display_name = fields.String(required=True)
     description = fields.String(required=True)
-    version = fields.String(required=True)
+    version = fields.Integer(required=True)
     author = fields.String(required=True)
     filename = fields.String(required=True)
 
