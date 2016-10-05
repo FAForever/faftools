@@ -26,7 +26,7 @@ class MapSchema(Schema):
     download_url = fields.Url(dump_only=True)
     thumbnail_url_small = fields.Url(dump_only=True)
     thumbnail_url_large = fields.Url(dump_only=True)
-    technical_name = fields.String(dump_only=True)
+    folder_name = fields.String(dump_only=True)
     create_time = fields.DateTime(dump_only=True)
     update_time = fields.DateTime(dump_only=True)
 
