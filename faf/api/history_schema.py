@@ -1,12 +1,12 @@
 from marshmallow_jsonapi import Schema, fields
 
 
-class LeaderboardHistorySchema(Schema):
+class HistorySchema(Schema):
     """
-    Represents ranked1v1 metadata
+    Represents a generic history of data.
     """
     id = fields.String()
     history = fields.Dict()
 
     class Meta:
-        type_ = 'leaderboard_history'
+        type_ = 'history'
