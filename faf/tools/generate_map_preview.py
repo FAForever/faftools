@@ -23,4 +23,4 @@ if __name__ == '__main__':
         512: os.path.join(target_dir, 'large')
     })
 
-    print("Previews generated for: %s".format(map_zip_or_folder))
+    print("Previews generated for: {}".format(map_zip_or_folder))
