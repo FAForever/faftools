@@ -6,7 +6,7 @@ class CoopLeaderboardSchema(Schema):
     Schema for 'coop_leaderboard' type API objects.
     """
 
-    id = fields.Integer()
+    id = fields.Str()
 
     ranking = fields.Integer()
     player_names = fields.Str()
