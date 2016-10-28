@@ -10,6 +10,7 @@ class CoopLeaderboardSchema(Schema):
 
     ranking = fields.Integer()
     player_names = fields.Str()
+    player_count = fields.Integer()
     secondary_objectives = fields.Bool()
     duration = fields.Integer()
 
