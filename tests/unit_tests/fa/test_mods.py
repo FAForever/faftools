@@ -15,6 +15,8 @@ def test_parse_mod_info(file):
     assert mod_info['version'] == 3642
     assert mod_info['_faf_modname'] == 'faf'
     assert mod_info['mountpoints']['env'] == '/env'
+    assert mod_info['conflicts'][1] == 'asdf'
+    assert mod_info['conflicts'][2] == '1234'
 
 
 def test_validate_mod_folder():
