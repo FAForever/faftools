@@ -11,7 +11,7 @@ class FeaturedModSchema(Schema):
     technical_name = fields.String()
     display_name = fields.String()
     description = fields.String()
-    visible = fields.String()
+    visible = fields.Bool()
     display_order = fields.Int()
     git_url = fields.String()
     git_branch = fields.String()
