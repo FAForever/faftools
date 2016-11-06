@@ -265,6 +265,7 @@ def generate_zip(zip_file_or_folder, target_dir):
             stash_file_path = os.path.join(str(file.parent), 'stash.lua.tmp')
             shutil.move(str(file), stash_file_path)
 
+            lineNumber = 1
             with open(stash_file_path, 'r') as stash_file:
                 with file.open('wb') as new_file:
                     for line in stash_file:
@@ -277,7 +278,11 @@ def generate_zip(zip_file_or_folder, target_dir):
                             '/{}'.format(map_info['name']),
                             '/{}'.format(new_file_base_name)
                         )
-                        new_file.write(line.encode('latin1'))
+                        try:
+                            new_file.write(line.encode('latin1'))
+                        except UnicodeEncodeError as e:
+                            raise UnicodeError('Error in ' + str(file) + ' on line ' + lineNumber + ': ' + str(e))
+                        lineNumber += 1
 
             os.remove(stash_file_path)
 
