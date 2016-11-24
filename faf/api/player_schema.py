@@ -2,7 +2,7 @@ from marshmallow_jsonapi import Schema, fields
 
 
 class RatingSchema(Schema):
-    id = fields.Str(dump_only=True)
+    id = fields.Str()
     mean = fields.Float()
     deviation = fields.Float()
 
@@ -11,7 +11,7 @@ class RatingSchema(Schema):
 
 
 class AvatarSchema(Schema):
-    id = fields.Str(dump_only=True)
+    id = fields.Str()
     url = fields.Url(required=True)
     tooltip = fields.String(required=True)
 
@@ -19,7 +19,7 @@ class AvatarSchema(Schema):
         type_ = 'avatar'
 
 class ClanSchema(Schema):
-    id = fields.Str(dump_only=True)
+    id = fields.Str()
     name = fields.String(required=True)
     tag = fields.String(required=True)
 
@@ -28,7 +28,7 @@ class ClanSchema(Schema):
 
 
 class PlayerSchema(Schema):
-    id = fields.Str(dump_only=True)
+    id = fields.Str()
     login = fields.Str()
     avatar = fields.Nested(AvatarSchema)
 
