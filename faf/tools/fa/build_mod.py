@@ -1,24 +1,24 @@
-import shlex
 import subprocess
 import logging
 
 from pathlib import Path
 
-from .mods import validate_mod_folder, parse_mod_info
+from .mods import validate_mod_folder
+import os
 
 logger = logging.getLogger(__name__)
 
 
-def build_mod(mod_folder):
+def build_mod(mod_folder, mod_info, temp_path):
     """
     Perform deployment of game code (FA repo) on this machine
 
-    :param mod_folder Path: local path to the mod
+    :param temp_path: path to temporary folder holding .zips
+    :param mod_folder: local path to the mod's git repo
+    :param mod_info: Data parsed from the mod_info.lua file
     :return: a list of packed mod dictionaries
     """
     validate_mod_folder(mod_folder)
-    mod_folder = Path(mod_folder)
-    mod_info = parse_mod_info(mod_folder / 'mod_info.lua')
     mod_name, _faf_modname, version = mod_info['name'], mod_info['_faf_modname'], mod_info['version']
     logger.info("Building mod: {}, version {} as {}".format(mod_name, version, _faf_modname))
     db_ids = {
@@ -36,40 +36,37 @@ def build_mod(mod_folder):
         'units': 21,
         'etc': 22
     }
+
     modfiles = []
-    for mount, vfs_point in mod_info['mountpoints'].items():
-        mount_id = db_ids.get(mount.lower(), '0')
-        mount_path = mod_folder / mount
-        logger.info("Mountpoint: {}, path: {}, id: {}".format(mount, mount_path, mount_id))
+    if not temp_path.exists():
+        os.makedirs(str(temp_path))
+
+    for codefolder, mount_point in mod_info['mountpoints'].items():  # Loop over the folders which need mounting
+        mount_id = db_ids.get(codefolder.lower(), '0')  # Database id of the folder in question, to be passed on
+
+        # Grab the HEAD commit for later use
         commit = subprocess.check_output(['git',
                                           '-C',
                                           str(mod_folder),
                                           'rev-parse',
                                           'HEAD']).decode().strip()
         logger.info("Using commit: {}".format(commit))
-        shasum = subprocess.check_output(['tar cf - ' + shlex.quote(str(mount_path))
-                                          + '| shasum'], shell=True).decode().split(' ')[0].strip()
-        logger.info("Current shasum: {}".format(shasum))
-        cache_name = mount_path.name + "." + shasum + ".zip"
-        cache_path = mod_folder / 'build' / cache_name
-        logger.info("Cache path: {}".format(cache_path))
-        if not cache_path.exists():
-            # Build archive
-            cmd = ['git', '-C', str(mod_folder), 'archive', commit, mount, '-o', str(cache_path), '-9']
-            logger.info(repr(cmd))
-            subprocess.check_output(cmd)
-            logger.info("{} was changed, rebuilding".format(mount_path, shasum))
-        else:
-            logger.info("{} (ID: {}) not changed".format(mount_path.name, mount_id))
 
-        md5sum = subprocess.check_output(['md5sum', str(cache_path)]).decode().split(' ')[0].strip()
-        modfiles.append({'filename': mount_path.name,
-                         'path': cache_path,
+        zip_path = Path(str(temp_path) + "/" + codefolder + '.zip')  # eg; opt/stable/temp/lua.zip
+        logger.info('Zip path: {}'.format(zip_path))
+
+        # Build archive
+        cmd = ['git', '-C', str(mod_folder), 'archive', '-o', str(zip_path), 'HEAD:' + codefolder + '/', '-9']
+        logger.info(repr(cmd))
+        subprocess.check_output(cmd)
+
+        md5sum = subprocess.check_output(['md5sum', str(zip_path)]).decode().split(' ')[0].strip()
+        modfiles.append({'filename': codefolder,
+                         'path': zip_path,
                          'md5': md5sum,
-                         'sha1': shasum,
                          'id': mount_id})
     return modfiles
 
 if __name__ == '__main__':
     logging.basicConfig(level=logging.INFO)
-    build_mod(Path('.'))
+    build_mod(Path('.'), {}, Path('.'))
