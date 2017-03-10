@@ -2,7 +2,7 @@
 pillow
 docopt
 lupa
-marshmallow
+marshmallow==2.13.1
 marshmallow-jsonapi
 pathlib
 requests
