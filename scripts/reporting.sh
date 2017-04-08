@@ -14,8 +14,8 @@ FILE_NAME="reports.tar.xz"
 declare -A selects
 
 #example queries
-selects[accounts]="SELECT COUNT(*) from login;"
-selects[games]="SELECT COUNT(*) from game_stats;"
+selects[game_stats]="SELECT * FROM game_stats;"
+selects[game_player_stats]="SELECT * from game_player_stats;"
 
 # Remove existing data
 if [ -d "$DATA_PATH" ]
