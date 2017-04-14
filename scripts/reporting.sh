@@ -1,8 +1,7 @@
 #!/bin/bash
 # This script runs SQL selects inside the docker FAF db and copies them outside the container
 
-IN_DOCKER="docker exec -i stable_faf-db_1 "
-DB_PASS=banana
+IN_DOCKER="docker exec -i stable_faf-db_1  "
 
 DATA_PATH="/opt/stable/content/reports"
 WEB_PATH="/opt/stable/content"
@@ -32,7 +31,7 @@ do
     echo "Processing $key"
     echo "$sql"
     echo
-    $IN_DOCKER mysql -uroot -p${DB_PASS} faf_lobby -e "$sql" > "${DATA_PATH}/${key}.txt"
+    $IN_DOCKER mysql --login-path=faf_lobby faf_lobby -e "$sql" > "${DATA_PATH}/${key}.txt"
 done
 
 echo "Remove old file"
