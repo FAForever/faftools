@@ -15,6 +15,7 @@ declare -A selects
 #example queries
 selects[game_stats]="SELECT * FROM game_stats;"
 selects[game_player_stats]="SELECT * from game_player_stats;"
+selects[registrations_per_week]="SELECT CONCAT(YEAR(create_time), '/', LPAD(WEEK(create_time),2,'0')) AS \"Week\", count(*) \"Registrations\" from login group by CONCAT(YEAR(create_time), '/', LPAD(WEEK(create_time),2,'0'));"
 
 # Remove existing data
 if [ -d "$DATA_PATH" ]
