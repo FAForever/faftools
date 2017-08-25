@@ -1,0 +1,17 @@
+{
+    "mod": "nomads",
+    "files": [
+        ["init_nomads.v{}.lua", 6, "init_nomads.lua"],
+        ["nomads_movies.v{}.nmd", 9, ["movies"]],
+        ["effects.v{}.nmd", 10, ["effects"]],
+        ["env.v{}.nmd", 11, ["env"]],
+        ["loc.v{}.nmd", 12, ["loc"]],
+        ["lua.v{}.nmd", 13, ["lua"]],
+        ["nomadhook.v{}.nmd", 14, ["nomadhook"]],
+        ["nomads.v{}.nmd", 15, ["nomads"]],
+        ["projectiles.v{}.nmd", 16, ["projectiles"]],
+        ["sounds.v{}.nmd", 17, ["sounds"]],
+        ["units.v{}.nmd", 18, ["units"]],
+        ["textures.v{}.nmd", 19, ["textures"]]
+    ]
+}
