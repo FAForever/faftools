@@ -11,7 +11,7 @@ install:
   - "pipenv install -d"
 
 script:
-  - "pipenv testcov"
+  - "pipenv run testcov"
 
 after_success:
   - coveralls
