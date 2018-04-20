@@ -11,8 +11,7 @@ install:
   - "pipenv install"
 
 script:
-  - pipenv shell
-  - py.test --cov tools --cov faf --cov-report term-missing
+  - "pipenv testcov"
 
 after_success:
   - coveralls

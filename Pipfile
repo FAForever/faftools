@@ -4,6 +4,8 @@ url = "https://pypi.python.org/simple"
 verify_ssl = true
 name = "pypi"
 
+[scripts]
+testcov = "python -m pytest --cov tools --cov faf --cov-report term-missing"
 
 [packages]
 
@@ -22,6 +24,7 @@ werkzeug = "*"
 pytest = "*"
 pytest-cov = "*"
 pytest-mock = "*"
+python-coveralls = "*"
 
 
 [requires]
