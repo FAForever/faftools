@@ -327,7 +327,7 @@ def parse_map_info(zip_file_or_folder, validate=True):
         validate_map_folder(path, validate)
 
         for file in path.glob('*_scenario.lua'):
-            with file.open() as fp:
+            with file.open("r", encoding="utf-8") as fp:
                 lua_data = read_scenario_file(fp)
             break
 
