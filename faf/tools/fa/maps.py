@@ -377,7 +377,7 @@ def extract_folder_name(lua_data):
 
 def read_scenario_file(file):
     content = file.read()
-    content = content if isinstance(content, str) else content.decode('utf-8')
+    content = content if isinstance(content, str) else content.decode('utf-8', errors="replace")
     return from_lua(content)
 
 
