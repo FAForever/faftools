@@ -1,12 +1,12 @@
 -f https://content.faforever.com/wheel/
-pillow
-docopt
-lupa
+pillow==4.2.1
+docopt==0.6.2
+lupa==1.4
 marshmallow==2.13.1
-marshmallow-jsonapi
-pathlib
-requests
-pytest-cov
-pytest-mock
-werkzeug
+marshmallow-jsonapi==0.15.1
+pathlib==1.0.1
+requests==2.18.4
+pytest-cov==2.5.1
+pytest-mock==1.6.2
+werkzeug==0.12.2
 -e .
